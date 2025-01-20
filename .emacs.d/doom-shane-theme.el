@@ -14,7 +14,8 @@ Can be an integer to determine the exact padding."
   "A darker version of the Material Theme inspired by xrei"
 
   ;; name        default   256       16
-  ((bg         '("#212121" nil       nil))           ; grey13 from list-colors-display
+  ;; ((bg         '("#212121" nil       nil))           ; grey13 from list-colors-display
+  ((bg         '("#2b2b2b" nil       nil))           ; grey13 from list-colors-display
    (bg-alt     '("#3e3e3e" nil       nil))
    (base0      '("#171F24" "black"   "black"))
    (base1      '("#262626" "#262626" "brightblack")) ; gray15
@@ -31,11 +32,15 @@ Can be an integer to determine the exact padding."
 
    (grey base5)
 
+   (black       '("#000000" "#000000" "black"))
    (red         '("#f57373" "#ff0000" "red"))
    (orange      '("#F78C6C" "#ff5f00" "brightred"))
    (green       '("#c3e88d" "#afff00" "green"))
    (teal        '("#44b9b1" "#00d7af" "brightgreen"))
    (yellow      '("#ffcb6b" "#ffd700" "brightyellow"))
+   (yellow1     '("#ffff00" "#ffff00" "yellow1"))
+   (yellow2     '("#eeee00" "#eeee00" "yellow2"))
+   (yellow3     '("#cdcd00" "#cdcd00" "yellow3"))
    ;; (yellow      '("#fffc00" "#fffc00" "yellow"))
    (blue        '("#82aaff" "#5fafff" "brightblue"))
    (dark-blue   '("#7986E7" "#d7ffff" "blue"))
@@ -54,27 +59,31 @@ Can be an integer to determine the exact padding."
    (BlanchedAlmond   '("#ffebcd", "#ffebcd", "BlanchedAlmond"))
    (Yellow           '("#fffc00", "#fffc00", "yellow"))
    (White            '("#ffffff", "#ffffff", "white"))
+   (SlateGray1       '("#c6e2ff", "#c6e2ff", "SlateGray1"))
+   (SlateGray3       '("#9fb6cd", "#9fb6cd", "SlateGray3"))
+   (MediumBlue       '("#0000cd", "#0000cd", "MediumBlue"))
+   (systemYellowColor '("#ffcc00", "#ffcc00", "systemYellowColor"))
 
    ;; face categories -- required for all themes
    (highlight      magenta)
-   (vertical-bar   red)             ;; was base2; Typically styles the vertical divider between split windows or panes within Emacs, providing a visual separation.
-   (selection      base4)           ;; Highlights Selected Items: Applied to text or UI elements that are currently selected, enhancing visibility and focus.
-   (builtin        blue)            ;; Denotes Built-in Constructs: Styles built-in functions, keywords, or language constructs in programming modes, distinguishing them from user-defined elements.
+   (vertical-bar   red)              ;; was base2; Typically styles the vertical divider between split windows or panes within Emacs, providing a visual separation.
+   (selection      base4)            ;; Highlights Selected Items: Applied to text or UI elements that are currently selected, enhancing visibility and focus.
+   (builtin        blue)             ;; Denotes Built-in Constructs: Styles built-in functions, keywords, or language constructs in programming modes, distinguishing them from user-defined elements.
    (comments       LightGoldenrod3)  ;; was base6; Styles Code Comments: Applied to comment sections in code, making them easily identifiable and visually distinct from executable code.
-   (doc-comments   base6)           ;; Styles Documentation Comments: Specifically targets documentation-style comments (e.g., Javadoc, Docstrings), often used to provide detailed explanations.
-   (constants      orange)          ;; Denotes Function Names: Applied to function or method names in code, helping to distinguish callable entities from other identifiers.
-   (functions      blue)            ;; Denotes Function Names: Applied to function or method names in code, helping to distinguish callable entities from other identifiers.
-   (keywords       cyan)            ;; Styles Language Keywords: Applied to language-specific keywords (e.g., if, else, for, while), enhancing readability and structure understanding.
-   (methods        blue)            ;; Highlights Methods: Specifically targets method names in object-oriented programming languages, distinguishing them from standalone functions.
-   (operators      cyan)            ;; Styles Operators: Applied to operators (e.g., +, -, *, /, ==), making them stand out within expressions and statements.
-   (type           magenta)         ;; Denotes Data Types: Styles data type names (e.g., int, String, List), aiding in quick identification of variable and function return types.
-   (strings        green)           ;; Styles String Literals: Applied to string values in code (e.g., "Hello, World!"), making them easily distinguishable from other data types.
-   (variables      yellow)          ;; Highlights Variable Names: Styles variable identifiers, helping to differentiate them from functions, constants, and types.
-   (numbers        orange)          ;; Styles Numeric Literals: Applied to numerical values in code (e.g., 42, 3.14), making them stand out within expressions and declarations.
-   (region         base3)           ;; base3; Highlights Selected Regions: Applied to text regions selected by the user, enhancing visibility for operations like copying or cutting.
-   (error          red)             ;; Indicates Errors: Styles error messages or problematic code segments, alerting the user to issues that need attention.
-   (warning        yellow)          ;; Indicates Warnings: Styles warning messages or non-critical issues in code, providing caution without halting operations.
-   (success        green)           ;; Indicates Success: Styles success messages or positive outcomes (e.g., successful compilation), providing visual confirmation of successful actions.
+   (doc-comments   base6)            ;; Styles Documentation Comments: Specifically targets documentation-style comments (e.g., Javadoc, Docstrings), often used to provide detailed explanations.
+   (constants      orange)           ;; Denotes Function Names: Applied to function or method names in code, helping to distinguish callable entities from other identifiers.
+   (functions      blue)             ;; Denotes Function Names: Applied to function or method names in code, helping to distinguish callable entities from other identifiers.
+   (keywords       cyan)             ;; Styles Language Keywords: Applied to language-specific keywords (e.g., if, else, for, while), enhancing readability and structure understanding.
+   (methods        blue)             ;; Highlights Methods: Specifically targets method names in object-oriented programming languages, distinguishing them from standalone functions.
+   (operators      cyan)             ;; Styles Operators: Applied to operators (e.g., +, -, *, /, ==), making them stand out within expressions and statements.
+   (type           magenta)          ;; Denotes Data Types: Styles data type names (e.g., int, String, List), aiding in quick identification of variable and function return types.
+   (strings        green)            ;; Styles String Literals: Applied to string values in code (e.g., "Hello, World!"), making them easily distinguishable from other data types.
+   (variables      yellow)           ;; Highlights Variable Names: Styles variable identifiers, helping to differentiate them from functions, constants, and types.
+   (numbers        orange)           ;; Styles Numeric Literals: Applied to numerical values in code (e.g., 42, 3.14), making them stand out within expressions and declarations.
+   (region         base3)            ;; base3; Highlights Selected Regions: Applied to text regions selected by the user, enhancing visibility for operations like copying or cutting.
+   (error          red)              ;; Indicates Errors: Styles error messages or problematic code segments, alerting the user to issues that need attention.
+   (warning        yellow)           ;; Indicates Warnings: Styles warning messages or non-critical issues in code, providing caution without halting operations.
+   (success        green)            ;; Indicates Success: Styles success messages or positive outcomes (e.g., successful compilation), providing visual confirmation of successful actions.
    (vc-modified    blue)
    (vc-added       green)
    (vc-deleted     red)
@@ -117,7 +126,7 @@ Can be an integer to determine the exact padding."
     ;; :foreground dark-cyan                  ;; Dark-cyan text to contrast with the background
     ;; :distant-foreground (doom-darken fg 0.2) ;; Subtle foreground color for distant text within the region
     :background White ;; Darkened dark-cyan background for the selected area
-    :foreground Blue                  ;; Dark-cyan text to contrast with the background
+    :foreground Blue                  ;; Dark-cyan text to contrast withdo the background
     :distant-foreground White ;; Subtle foreground color for distant text within the region
     :extend t)                             ;; Extends the region highlighting beyond window boundaries
 
@@ -151,6 +160,7 @@ Can be an integer to determine the exact padding."
    ;; Styles the cursor in buffers
    (cursor
     :background "#fffc00")                      ;; Yellow cursor for high visibility
+    ;; :background "#adff2f")                      ;; Yellow cursor for high visibility
 
    ;;-----------------------------------------------------------------------------
    ;; Line Number Faces
@@ -160,7 +170,8 @@ Can be an integer to determine the exact padding."
    (hl-line
     :background "grey28"                       ;; Base2 color as the background for the highlighted line
     ;; :background "#8b1a1a"                       ;; Base2 color as the background for the highlighted line
-    :foreground nil)                        ;; No change to the text foreground
+    ;; :foreground nil)                        ;; No change to the text foreground
+    )
 
    ;; Styles the line number of the current line in the buffer
    (line-number-current-line
@@ -204,6 +215,34 @@ Can be an integer to determine the exact padding."
    ((org-block &override) :background base2)
    ((org-block-background &override) :background base2)
    ((org-block-begin-line &override) :background base2)
+
+   ;; (org-todo :background White :foreground MediumBlue)
+   ;; (org-tag :background White :foreground MediumBlue)
+   (org-todo :background White :foreground  "#5856d6")
+   (org-tag :background MediumBlue :foreground White)
+   (org-link :foreground "#cdcd00" :underline t)
+   (org-meta-line :background base6)
+
+   (org-done :background base4)
+   (org-scheduled :background red)
+   (org-deadline :background red)
+   (org-scheduled-previously :background red)
+   (org-upcoming-deadline :background red)
+   (org-checkbox :background red)
+   (org-code :background red)
+   (org-verbatim :background red)
+   (org-quote :background red)
+   (org-block-begin-line :background red)
+   (org-block-end-line :background red)
+   (org-table :background red)
+   (org-date :background red)
+   (org-special-keyword :background red)
+   (org-property-value :background red)
+   (org-document-title :background red)
+   (org-document-info :background red)
+   (org-agenda-date :background red)
+   (org-agenda-done :background red)
+   (org-agenda-structure :background red)
 
    ;;;; css-mode <built-in> / scss-mode
    (css-proprietary-property :foreground orange)
@@ -274,15 +313,15 @@ Can be an integer to determine the exact padding."
    (web-mode-html-attr-equal-face :foreground cyan)
 
    ;;;; Org Mode
-   (org-level-1 :foreground green)
-   (org-level-2 :foreground yellow)
-   (org-level-3 :foreground red)
-   (org-level-4 :foreground cyan)
-   (org-level-5 :foreground blue)
-   (org-level-6 :foreground magenta)
-   (org-level-7 :foreground teal)
-   (org-level-8 :foreground violet)
-   (org-todo :foreground orange)
+   ;; (org-level-1 :foreground green)
+   ;; (org-level-2 :foreground yellow)
+   ;; (org-level-3 :foreground red)
+   ;; (org-level-4 :foreground cyan)
+   ;; (org-level-5 :foreground blue)
+   ;; (org-level-6 :foreground magenta)
+   ;; (org-level-7 :foreground teal)
+   ;; (org-level-8 :foreground violet)
+   ;; (org-todo :foreground orange)
 
    ;;;; css
    (css-property :foreground orange)

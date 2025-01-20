@@ -22,7 +22,6 @@ Each line in INITIAL-BUFFERS-FILE should contain the full path to a file.
 Files are loaded into buffers without switching to them.
 
 This function is non-interactive and can be called programmatically."
-  (interactive)
   (let ((default-file (expand-file-name "~/.emacs.d/initial-buffers.txt"))
         (file-list '())
         (loaded-files 0)
@@ -57,6 +56,16 @@ This function is non-interactive and can be called programmatically."
             (message "find-files: Loaded %d files." loaded-files)))
       ;; If initial-buffers.txt does not exist, log a message
       (message "find-files: Initial buffers file not found: %s" initial-buffers-file))))
+
+
+(defun first-line-p ()
+  "Return non-nil if point is on the first line of the buffer."
+  (eq (line-number-at-pos) 1))
+
+(defun last-line-p ()
+  "Return non-nil if point is on the last line of the buffer."
+  (eq (line-number-at-pos (point))
+      (line-number-at-pos (point-max))))
 
 ;;-----------------------------------------------------------------------------
 ;; my-beginning-of-buffer
@@ -295,3 +304,19 @@ If the end of the buffer is already on the screen, move point to it."
     (kill-word 1)
     (insert number-string-2)
     (backward-word 1)))
+
+;; kill-line
+(defun my-kill-line (&optional arg)
+  (interactive "P")
+  (if buffer-read-only
+      (let ((start (point))
+            (end (line-end-position)))
+        (kill-new (buffer-substring-no-properties start end)))
+    (kill-line arg)))
+
+;; kill-region
+(defun my-kill-region (beg end &optional region)
+  (interactive (list (region-beginning) (region-end) 'region))
+  (if buffer-read-only
+      (kill-ring-save beg end region)
+    (kill-region beg end region)))

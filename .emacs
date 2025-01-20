@@ -1,1 +1,0 @@
-/Users/shane/.n/.emacs.d/.emacs
