@@ -10,6 +10,13 @@
   (message "This key is currently not mapped to an emacs function."))
 
 
+(defun unfill-paragraph ()
+  "Transform a filled paragraph into a single line of text."
+  (interactive)
+  (let ((fill-column (point-max)))
+    (fill-paragraph nil)))
+
+
 ;;-----------------------------------------------------------------------------
 ;; find-files
 ;;-----------------------------------------------------------------------------
@@ -18,7 +25,7 @@
 
 INITIAL-BUFFERS-FILE defaults to '~/.emacs.d/initial-buffers.txt'.
 
-Each line in INITIAL-BUFFERS-FILE should contain the full path to a file.
+eEach line in INITIAL-BUFFERS-FILE should contain the full path to a file.
 Files are loaded into buffers without switching to them.
 
 This function is non-interactive and can be called programmatically."
@@ -309,14 +316,16 @@ If the end of the buffer is already on the screen, move point to it."
 (defun my-kill-line (&optional arg)
   (interactive "P")
   (if buffer-read-only
-      (let ((start (point))
-            (end (line-end-position)))
-        (kill-new (buffer-substring-no-properties start end)))
+      (progn
+        (kill-new (buffer-substring-no-properties (point) (line-end-position)))
+        (message "Copied..."))
     (kill-line arg)))
 
 ;; kill-region
 (defun my-kill-region (beg end &optional region)
   (interactive (list (region-beginning) (region-end) 'region))
   (if buffer-read-only
-      (kill-ring-save beg end region)
+      (progn
+        (kill-ring-save beg end region)
+        (message "Copied..."))
     (kill-region beg end region)))

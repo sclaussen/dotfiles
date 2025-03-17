@@ -1,72 +1,10 @@
-(defvar todo-mode-map nil "Keymap for todo mode.")
-
-(if todo-mode-map
-    nil
-  (setq todo-mode-map (make-sparse-keymap)))
-
-(defun todo-mode ()
-  "
-Major mode for todos.
-
-Mode specific key bindings:
-
-  1        Add todo to section 1
-  2        Add todo to section 2
-  3        Add todo to section 3
-  4        Add todo to section 4
-  5        Add feature to section 5
-  C-c a    Add an todo (prompts for priority)
-  C-c o    Assign/Change an owner
-  C-c d    Complete todo
-  C-c C-c  Toggle edit mode
-  C-c 1    Change item priority to 1
-  C-c 2    Change item priority to 2
-  C-c 3    Change item priority to 3
-  C-c 4    Change item priority to 4
-
-Variables:
-  todo-file (default z:/todos/current.todo)
-  todo-complete-file (default z:/todos/completed.txt)
-"
-  (interactive)
-
-  (todo-buffer-display)
-
-  (kill-all-local-variables)
-  (use-local-map todo-mode-map)
-  (setq major-mode 'todo-mode)
-  (setq mode-name "Todo")
-
-  (define-key todo-mode-map "n" 'todo-next-line)
-  (define-key todo-mode-map "p" 'todo-previous-line)
-  (define-key todo-mode-map "e" 'todo-edit)
-  (define-key todo-mode-map "d" 'todo-done)
-  (define-key todo-mode-map "c" 'todo-cancel)
-
-  (define-key todo-mode-map "j" 'todo-raise-priority)
-  (define-key todo-mode-map "k" 'todo-lower-priority)
-
-  (define-key todo-mode-map "a" 'todo-create-p1)
-  (define-key todo-mode-map "1" 'todo-create-p1)
-  (define-key todo-mode-map "2" 'todo-create-p2)
-  (define-key todo-mode-map "3" 'todo-create-p3)
-  (define-key todo-mode-map "4" 'todo-create-p4)
-
-  (setq truncate-lines t)
-  (run-hooks 'todo-mode-hook))
-
 (defun todo-buffer-display ()
-  (let ((todo-buffer (get-file-buffer "~/.todo")))
+  (let ((todo-buffer (get-file-buffer "~/.todo.org")))
     (if todo-buffer
         (switch-to-buffer todo-buffer)
-      (find-file  "~/.todo"))))
+      (find-file  "~/.todo.org"))))
 
 (defun todo-next-line ()
-  (interactive)
-  (next-line 1)
-  (beginning-of-line))
-
-(defun todo-completed ()
   (interactive)
   (next-line 1)
   (beginning-of-line))
@@ -79,68 +17,51 @@ Variables:
 (defun todo-edit ()
   (interactive)
   (setq mode-name "Todo Edit")
-  (todo-toggle-keys mode-name))
+  (todo-toggle-keys mode-name)
+  (force-mode-line-update))
 
 (defun todo-quit-edit ()
   (interactive)
   (setq mode-name "Todo")
+  (todo-toggle-keys mode-name)
   (force-mode-line-update))
 
-(defun todo-toggle-keys (mode-name)
-  (force-mode-line-update))
+(defun todo-completed ()
+  (interactive)
+  (next-line 1)
+  (beginning-of-line))
 
-  (define-key todo-mode-map "n" 'self-insert-command)
-  (define-key todo-mode-map "p" 'self-insert-command)
-  (define-key todo-mode-map "e" 'self-insert-command)
-  (define-key todo-mode-map "c" 'self-insert-command)
-  (define-key todo-mode-map "1" 'self-insert-command)
-  (define-key todo-mode-map "2" 'self-insert-command)
-  (define-key todo-mode-map "3" 'self-insert-command)
-  (define-key todo-mode-map "4" 'self-insert-command)
-  (define-key todo-mode-map "5" 'self-insert-command)
-  (define-key todo-mode-map "\C-c\C-c" 'todo-quit-edit)
-  (define-key todo-mode-map "1" 'todo-create-p1)
-  (define-key todo-mode-map "2" 'todo-create-p2)
-  (define-key todo-mode-map "3" 'todo-create-p3)
-  (define-key todo-mode-map "4" 'todo-create-p4)
-  (define-key todo-mode-map "\C-c\C-c" 'todo-edit)
+(defun todo-cancel ()
+  (interactive)
+  )
+
+(defun todo-raise-priority ()
+  (interactive)
+  )
+
+(defun todo-lower-priority ()
+  (interactive)
+  )
 
 (defun todo-create-p1 ()
   (interactive)
   (save-excursion
-    (todo-create "1" nil todo-current-user)))
+    (todo-create "1")))
 
 (defun todo-create-p2 ()
   (interactive)
   (save-excursion
-    (todo-create "2" nil todo-current-user)))
+    (todo-create "2")))
 
 (defun todo-create-p3 ()
   (interactive)
   (save-excursion
-    (todo-create "3" nil todo-current-user)))
+    (todo-create "3")))
 
 (defun todo-create-p4 ()
   (interactive)
   (save-excursion
-    (todo-create "4" nil todo-current-user)))
-
-(defun todo-create-priority ()
-  (interactive)
-  (save-excursion
-    (let* ((section (read-from-minibuffer "Priority: "))
-           (item (read-from-minibuffer "Item: "))
-           (submitter todo-current-user))
-
-      (todo-create section item submitter))))
-
-(defun todo-create (priority)
-  (save-excursion
-    (let* ((todo (if todo-item todo-item (read-from-minibuffer "Item: ")))
-           (section (concat "Priority: " priority)))
-      (beginning-of-buffer)
-      (insert (concat "  " (get-date) " (s:" submitter ") " todo "\n"))
-      (save-buffer 1))))
+    (todo-create "4")))
 
 (defun todo-update-p1 ()
   (interactive)
@@ -162,12 +83,22 @@ Variables:
   (save-excursion
     (todo-update-priority "4")))
 
-(defun todo-update-priority (priority)
+(defvar todo-category-list '("pkg" "pkgdesigner" "pkgadmin" "pkgdev" "distribution" "lcm" "workflow" "rules")
+  "List of possible categories for TODO items.")
 
+(defun todo-create (&optional priority description category)
   (save-excursion
+    (let* ((priority (or priority (read-from-minibuffer "Priority: ")))
+           (category (or category (completing-read "Category: " todo-category-list nil nil nil nil)))
+           (description (or description (read-from-minibuffer "Description: "))))
+      (beginning-of-buffer)
+      (insert (concat priority " " category " " description " (" (get-date) ")\n"))
+      (save-buffer 1))))
 
+(defun todo-update-priority (priority)
+  (save-excursion
     (let ((todo (buffer-substring (progn (beginning-of-line) (point))
-                                   (progn (end-of-line) (point)))))
+                                  (progn (end-of-line) (point)))))
 
       ;;find todo in current file
       (beginning-of-buffer)
@@ -263,3 +194,18 @@ Variables:
       (concat "11/" day))
      ((equal month "Dec")
       (concat "12/" day)))))
+
+(defun todo-toggle-keys (mode)
+  (define-key todo-mode-map "a" (if (eq mode "Todo") 'todo-create 'self-insert-command))
+  (define-key todo-mode-map "n" (if (eq mode "Todo") 'todo-next-line 'self-insert-command))
+  (define-key todo-mode-map "p" (if (eq mode "Todo") 'todo-previous-line 'self-insert-command))
+  (define-key todo-mode-map "e" (if (eq mode "Todo") 'todo-edit 'self-insert-command))
+  (define-key todo-mode-map "c" (if (eq mode "Todo") 'todo-cancel 'self-insert-command))
+  (define-key todo-mode-map "d" (if (eq mode "Todo") 'todo-done 'self-insert-command))
+  (define-key todo-mode-map "," (if (eq mode "Todo") 'todo-raise-priority 'self-insert-command))
+  (define-key todo-mode-map "." (if (eq mode "Todo") 'todo-lower-priority 'self-insert-command))
+  (define-key todo-mode-map "1" (if (eq mode "Todo") 'todo-create-p1 'self-insert-command))
+  (define-key todo-mode-map "2" (if (eq mode "Todo") 'todo-create-p2 'self-insert-command))
+  (define-key todo-mode-map "3" (if (eq mode "Todo") 'todo-create-p3 'self-insert-command))
+  (define-key todo-mode-map "4" (if (eq mode "Todo") 'todo-create-p4 'self-insert-command))
+  (define-key todo-mode-map "\C-c\C-c" 'todo-quit-edit))

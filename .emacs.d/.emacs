@@ -21,73 +21,47 @@
 (load "~/.emacs.d/keys.el")
 (load "~/.emacs.d/vars.el")
 (load "~/.emacs.d/org.el")
+(load "~/.emacs.d/todo.el")
 
 
 ;;=============================================================================
-;; Doom Configuraiton
+;; Doom Configuration
 ;;=============================================================================
 (add-to-list 'custom-theme-load-path "~/.emacs.d")
 (use-package doom-themes
   :ensure t
   :config
-  (load-theme 'doom-shane t)  ;; Replace with your chosen Doom theme
-  (global-hl-line-mode +1))
+  (load-theme 'doom-shane t)
+  (global-hl-line-mode +1)
+  (setq custom-theme-name 'dark))
 
+;; (defun switch-theme ()
+;;   "Toggle between 'doom-shane' (dark) and 'doom-one-light' (light) themes."
+;;   (interactive)
+;;   (cond
+;;    ((memq 'doom-shane custom-enabled-themes)
+;;     ;; Currently using dark theme; switch to light theme.
+;;     (load-theme 'doom-one-light t t)
+;;     (disable-theme 'doom-shane)
+;;     (message "Switched to light theme"))
+;;    ((memq 'doom-one-light custom-enabled-themes)
+;;     ;; Currently using light theme; switch to dark theme.
+;;     (load-theme 'doom-shane t t)
+;;     (disable-theme 'doom-one-light)
+;;     (message "Switched to dark theme"))
+;;    (t
+;;     ;; Neither theme is active; default to dark theme.
+;;     (load-theme 'doom-shane t t)
+;;     (message "No theme detected. Loaded dark theme by default"))))
 
-;; ;;=============================================================================
-;; ;; Python Mode Configuration
-;; ;;=============================================================================
-;; (setq python-indent-offset 4)
-;; (use-package python-mode
-;;   :defer t)
-
-
-;; ;;=============================================================================
-;; ;; Load yaml mode
-;; ;;=============================================================================
-;; (use-package yaml-mode
-;;   :ensure t
-;;   :mode ("\\.yml\\'" "\\.yaml\\'" "\\.template\\'")
-;;   :hook (yaml-mode . (lambda ()
-;;                        (define-key yaml-mode-map "\C-m" 'newline-and-indent))))
-
-
-;; ;;=============================================================================
-;; ;; ISpell Configuration (brew install aspell) (used by markdown-mode)
-;; ;;=============================================================================
-;; (add-to-list 'exec-path "/opt/homebrew/bin")  ;; or wherever brew installed the binary
-;; (setq ispell-program-name "aspell")
-
-
-;; ;;=============================================================================
-;; ;; Markdown Mode Configuration
-;; ;;=============================================================================
-;; (use-package markdown-mode
-;;   :ensure t
-;;   :commands (markdown-mode gfm-mode)
-;;   :mode (("README\\.md\\'" . gfm-mode)
-;;          ("\\.md\\'"       . markdown-mode))
-;;   :init
-;;   ;; If you want to interpret YAML front matter in your .md
-;;   (add-hook 'markdown-mode-hook 'flyspell-mode)
-;;   (setq markdown-enable-math t)
-;;   (setq markdown-command "pandoc --from markdown --to html5 --mathjax")) ;; brew install pandoc
-
-
-;; ;;=============================================================================
-;; ;; Text-Mode Configuration
-;; ;;=============================================================================
-;; (defun my-text-mode-setup ()
-;;   "Configure settings specific to `text-mode`."
-;;   (auto-fill-mode 1)                ;; Enable auto-fill-mode explicitly
-;;   (setq-local fill-column 77))      ;; Set fill-column to 77 in the buffer
-
-;; (add-hook 'text-mode-hook #'my-text-mode-setup)
-
+;; (global-set-key (kbd "C-c t") #'switch-theme)
 
 
 ;;=============================================================================
 ;; Vertico Configuration
+;;
+;; Provides a minimalistic vertical completion UI for minibuffer
+;; prompts, enhancing the default completion experience.
 ;;=============================================================================
 (use-package vertico
   :ensure t
@@ -99,132 +73,145 @@
   (define-key vertico-map (kbd "SPC") #'minibuffer-complete-word))
 
 
-;; ;;=============================================================================
-;; ;; Embark Configuraiton
-;; ;;=============================================================================
-;; (use-package embark
-;;   :ensure t
-;;   ;; Optionally bind a key for embark-act globally, e.g.,:
-;;   :bind
-;;   (("C-." . embark-act)
-;;    ("C-;" . embark-dwim)))
-
-;; (use-package embark-consult
-;;   :ensure t
-;;   :hook
-;;   (embark-collect-mode . consult-preview-at-point-mode))
-
-
-;; ;;=============================================================================
-;; ;; Marginalia Configuration (additional file/buffer annotations)
-;; ;;=============================================================================
-;; (use-package marginalia
-;;   :ensure t
-;;   :init
-;;   (marginalia-mode)
-;;   ;; Optional settings:
-;;   :custom
-;;   (marginalia-max-relative-age 0)  ; Show dates for all files, not just recent ones
-;;   (marginalia-multiline nil)       ; Use single line annotations
-;;   (setq marginalia-annotators '(marginalia-annotators-heavy))  ; use heavy annotators
-;;   ;; (marginalia-align 'right)        ; Align annotations to the right side
-;;   )
+;;=============================================================================
+;; Marginalia Configuration (additional file/buffer annotations)
+;;
+;; Adds rich annotations to minibuffer completions, providing
+;; additional context like documentation, file sizes, etc.
+;;=============================================================================
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode)
+  :custom
+  (marginalia-max-relative-age 0)
+  (marginalia-multiline nil)
+  (setq marginalia-annotators '(marginalia-annotators-heavy)))
 
 
-;; ;;=============================================================================
-;; ;; Writeroom Mode Configuration
-;; ;;=============================================================================
-;; (use-package writeroom-mode
-;;   :ensure t
-;;   :commands (writeroom-mode)
-;;   :init
-;;   (setq writeroom-width 120)
-;;   (setq writeroom-fullscreen-effect 'maximized)
-;;   :config
-;;   (global-set-key (kbd "C-c w") 'writeroom-mode))
+;;=============================================================================
+;; Embark Configuration
+;;
+;; Provides context-sensitive actions (a "do what I mean" menu) for
+;; things at point, integrating with completion frameworks.
+;;=============================================================================
+(use-package embark
+  :ensure t
+  ;; Optionally bind a key for embark-act globally, e.g.,:
+  :bind
+  (("C-." . embark-act)
+   ("C-;" . embark-dwim)))
 
 
-;; ;;=============================================================================
-;; ;; Which Key Configuration
-;; ;;=============================================================================
-;; (use-package which-key
-;;   :ensure t
-;;   :init
-;;   (setq which-key-idle-delay 2              ; Time before popup shows up
-;;         which-key-max-description-length 25 ; Max length of descriptions
-;;         which-key-separator " → "           ; Separator between keys
-;;         which-key-prefix-prefix "+ ")       ; Prefix for prefix keys
-;;   :config
-;;   (which-key-mode)                          ; Enable which-key
-;;   (which-key-setup-side-window-bottom)      ; Position the popup at the bottom
-;;   ;; Optional: Customize the appearance
-;;   (setq which-key-popup-type 'side-window)  ; 'frame, 'minibuffer, 'side-window, etc.
-;;   (which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
-;;     "C-c C-c" "Compile current buffer"
-;;     "C-c C-k" "Kill Compilation"))
+;;=============================================================================
+;; Writeroom Mode Configuration
+;;
+;; A distraction-free editing mode that centers text and hides UI
+;; elements for a focused writing environment.
+;;=============================================================================
+(use-package writeroom-mode
+  :ensure t
+  :commands (writeroom-mode)
+  :init
+  (setq writeroom-width 120)
+  (setq writeroom-fullscreen-effect 'maximized))
+:config
+
+(global-set-key (kbd "C-c w") 'writeroom-mode)
 
 
-;; ;;=============================================================================
-;; ;; Uses spaces instead of tabs and cleanup whitespace upon save
-;; ;;=============================================================================
-;; (setq-default indent-tabs-mode nil)
-
-;; (defun my-untabify-buffer ()
-;;   "Untabify the entire buffer, replacing all tabs with spaces."
-;;   (untabify (point-min) (point-max)))
-
-;; (defun my-cleanup-buffer-before-save ()
-;;   "Untabify the buffer and delete trailing whitespace before saving."
-;;   (my-untabify-buffer)
-;;   (delete-trailing-whitespace))
-
-;; (add-hook 'before-save-hook #'my-cleanup-buffer-before-save)
-
-;; (setq-default show-trailing-whitespace t)
-
-
-;; ;;=============================================================================
-;; ;; Define a Function to Recenter After isearch
-;; ;;=============================================================================
-;; (defun my-isearch-recenter ()
-;;   "Recenter the window on the search hit if it's not visible."
-;;   (unless (pos-visible-in-window-p (point))
-;;     (recenter nil 1)))
-
-;; (unless (member #'my-isearch-recenter isearch-update-post-hook)
-;;   (add-hook 'isearch-update-post-hook #'my-isearch-recenter))
+;;=============================================================================
+;; Which Key Configuration
+;;
+;; Displays available keybindings in a popup after a short delay,
+;; helping discover commands bound to prefixes.
+;;=============================================================================
+(use-package which-key
+  :ensure t
+  :init
+  (setq which-key-idle-delay 2              ; Time before popup shows up
+        which-key-max-description-length 25 ; Max length of descriptions
+        which-key-separator " → "           ; Separator between keys
+        which-key-prefix-prefix "+ ")       ; Prefix for prefix keys
+  :config
+  (which-key-mode)                          ; Enable which-key
+  (which-key-setup-side-window-bottom)      ; Position the popup at the bottom
+  ;; Optional: Customize the appearance
+  (setq which-key-popup-type 'side-window)  ; 'frame, 'minibuffer, 'side-window, etc.
+  (which-key-add-major-mode-key-based-replacements 'emacs-lisp-mode
+    "C-c C-c" "Compile current buffer"
+    "C-c C-k" "Kill Compilation"))
 
 
-;; ;;=============================================================================
-;; ;; Set custom registers to commonly used files
-;; ;;=============================================================================
-;; (set-register ?x (cons 'file "~/src/mathgen/view.js"))
-;; (setq register-preview-delay 0) ;; Show registers ASAP
+;;=============================================================================
+;; Python Mode Configuration
+;;=============================================================================
+(setq python-indent-offset 4)
+(use-package python-mode
+  :defer t)
 
 
-;; ;;=============================================================================
-;; ;; Start the server enabling emacsclient to open files
-;; ;;=============================================================================
-;; (server-start)
+;;=============================================================================
+;; YAML Model Configuration
+;;=============================================================================
+(use-package yaml-mode
+  :ensure t
+  :mode ("\\.yml\\'" "\\.yaml\\'" "\\.template\\'")
+  :hook (yaml-mode . (lambda ()
+                       (define-key yaml-mode-map "\C-m" 'newline-and-indent))))
 
 
-;; ;;=============================================================================
-;; ;; Automatically create buffers for everything in initial-buffers.txt
-;; ;;=============================================================================
-;; (defvar my-find-files-loaded nil
-;;   "Indicates whether `find-files` has been executed.")
-;; (unless my-find-files-loaded
-;;   (find-files)                  ;; Replace with your actual function call
-;;   (setq my-find-files-loaded t)) ;; Set the flag to indicate execution
+;;=============================================================================
+;; Markdown Mode Configuration
+;;=============================================================================
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'"       . markdown-mode))
+  :init
+  ;; If you want to interpret YAML front matter in your .md
+  (add-hook 'markdown-mode-hook 'flyspell-mode)
+  (setq markdown-enable-math t)
+  (setq markdown-command "pandoc --from markdown --to html5 --mathjax")) ;; brew install pandoc
 
 
-;; ;;=============================================================================
-;; ;; Remove scratch buffer
-;; ;;=============================================================================
-;; (if (get-buffer "*scratch*")
-;;     (kill-buffer "*scratch*"))
-;; (if (get-buffer "*Messages*")
-;;     (kill-buffer "*Messages*"))
+;;=============================================================================
+;; Text Mode Configuration
+;;=============================================================================
+(defun my-text-mode-setup ()
+  "Configure settings specific to `text-mode`."
+  (auto-fill-mode 1)                ;; Enable auto-fill-mode explicitly
+  (setq-local fill-column 77))      ;; Set fill-column to 77 in the buffer
+
+(add-hook 'text-mode-hook #'my-text-mode-setup)
 
 
-;; (message "Welcome!")
+;;=============================================================================
+;; Start the server enabling emacsclient to open files
+;;=============================================================================
+(server-start)
+
+
+;;=============================================================================
+;; Automatically create buffers for everything in initial-buffers.txt
+;;=============================================================================
+(defvar my-find-files-loaded nil
+  "Indicates whether `find-files` has been executed.")
+(unless my-find-files-loaded
+  (find-files)                  ;; Replace with your actual function call
+  (setq my-find-files-loaded t)) ;; Set the flag to indicate execution
+
+(set-register ?e (cons 'file "~/.emacs"))
+(set-register ?o (cons 'file "~/.emacs.d/org.el"))
+(setq register-preview-delay 0) ;; Show registers ASAP
+
+
+;;=============================================================================
+;; Remove scratch buffer
+;;=============================================================================
+(if (get-buffer "*scratch*")
+    (kill-buffer "*scratch*"))
+
+
+(message "Welcome!")

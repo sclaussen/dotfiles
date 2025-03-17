@@ -5,6 +5,16 @@
 (use-package org
   :ensure t)
 
+(defun org-todo-keys ()
+  "Define keybindings specific to the todo.org buffer."
+  (when (and (derived-mode-p 'org-mode)
+             (string-equal (file-truename (or (buffer-file-name) ""))
+                           (file-truename "~/.todo.org")))
+    (local-set-key (kbd "C-c a") #'my-add-task)
+    (local-set-key (kbd "C-c b") #'my-browse-tasks)))
+
+(add-hook 'org-mode-hook #'org-todo-keys)
+
 (setq org-hide-block-startup t)
 (setq org-startup-indented t)
 (setq org-time-stamp-formats '("<W%W %a %m/%e>" . "<W%W %a %m/%e>"))
@@ -20,66 +30,66 @@
 ;; Utilities
 ;;=============================================================================
 
-(defun my-org-beginning-of-heading-p ()
+(defun my-org-at-beginning-of-heading-p ()
   (interactive)
   (and (org-at-heading-p)
        (looking-back  "^\\*+\\s-?" (line-beginning-position))))
 
-(defun my-org-beginning-of-level1-heading-p ()
+(defun my-org-at-beginning-of-heading-level1-p ()
   (interactive)
   (and (org-at-heading-p)
        (looking-back  "^\\* " (line-beginning-position))))
 
-(defun my-org-beginning-of-level2-heading-p ()
+(defun my-org-at-beginning-of-heading-level2-p ()
   (interactive)
   (and (org-at-heading-p)
        (looking-back  "^\\*\\* " (line-beginning-position))))
 
-(defun my-org-level1-heading-p ()
+(defun my-org-at-heading-level1-p ()
   (interactive)
   (and (org-at-heading-p)
        (save-excursion
-	 (beginning-of-line)
-	 (looking-at  "^\\* "))))
+         (beginning-of-line)
+         (looking-at  "^\\* "))))
 
-(defun my-org-level2-heading-p ()
+(defun my-org-at-heading-level2-p ()
   (interactive)
   (and (org-at-heading-p)
        (save-excursion
-	 (beginning-of-line)
-	 (looking-at  "^\\*\\* "))))
+         (beginning-of-line)
+         (looking-at  "^\\*\\* "))))
 
 (defun my-org-skip-bullets-forward ()
   (interactive)
   (if (and (org-at-heading-p)
-	   (looking-at "^\\*+\\s-?"))
+           (looking-at "^\\*+\\s-?"))
       (progn
-	(skip-chars-forward "*")
-	(if (looking-at " ")
-	    (forward-char 1)))))
+        (skip-chars-forward "*")
+        (if (looking-at " ")
+            (forward-char 1)))))
 
 (defun my-org-skip-bullets-backward ()
   (interactive)
   (if (and (org-at-heading-p)
-	   (looking-back "^\\*+\\s-?" (line-beginning-position)))
+           (looking-back "^\\*+\\s-?" (line-beginning-position)))
       (skip-chars-backward "* ")))
 
 (defun my-org-delete-backward-char-bullets ()
   (interactive)
   (if (looking-back "^\\*+ " (line-beginning-position))
       (progn
-	(kill-region (point) (progn (beginning-of-line) (point))))))
+        (kill-region (point) (progn (beginning-of-line) (point))))))
 
-(defun my-org-goto-level1-heading ()
+(defun my-org-goto-heading-level1 ()
   (interactive)
   (goto-char (point-min))
   (re-search-forward "^\\* " nil t))
 
-(defun my-org-search-forward-level2-heading ()
+(defun my-org-search-forward-heading-level2 ()
   (interactive)
   (re-search-forward "^\\*\\* " nil t))
 
-(defun my-org-search-backward-level2-heading ()
+(defun my-org-search-backward-heading-level2 ()
   (interactive)
   (let ((response (re-search-backward "^\\*\\* " nil t)))
     (progn
@@ -87,7 +97,7 @@
       response)))
 
 ;;=============================================================================
-;; Functions for smarter movement 
+;; Functions for smarter movement
 ;;=============================================================================
 
 ;; forward-char
@@ -125,38 +135,40 @@
   (interactive)
   (if (last-line-p)
       (message "Last line")
-    (progn
-      (if (my-org-level2-heading-p)
-	  (progn 
-	    (next-line 1)
-	    (my-org-beginning-of-line)
-	    (if (looking-at "Attendees: ")
-		(forward-char (length "Attendees: "))))
-	(progn
-	  (next-line 1)
-	  (my-org-skip-bullets-forward)
-	  (if (looking-back "^\\*+")
-	      (forward-char 1))
-	  (if (my-org-level2-heading-p)
-	      (my-org-beginning-of-line)))))))
+    (next-line 1)
+    (if (or (my-org-at-heading-level1-p)
+            (my-org-at-heading-level2-p))
+        (progn
+          (my-org-beginning-of-line)
+          (if (looking-at "Attendees: ")
+              (forward-char (length "Attendees: "))))
+      (my-org-skip-bullets-forward)
+      (if (looking-back "^\\*+")
+          (forward-char 1)))))
 
 ;; previous-line
 (defun my-org-previous-line ()
   (interactive)
   (if (first-line-p)
       (message "First line")
-    (previous-line 1))
-  (my-org-skip-bullets-forward)
-  (if (looking-back "^\\*+")
-      (forward-char 1))
-  (if (save-excursion
-	(my-org-beginning-of-line)
-	(looking-at "Attendees: "))
-      (progn
-	(my-org-beginning-of-line)
-	(forward-char (length "Attendees: ")))
-    (if (my-org-level2-heading-p)
-	(my-org-beginning-of-line))))
+    (previous-line 1)
+    (if (or (my-org-at-heading-level1-p)
+            (my-org-at-heading-level2-p))
+        (progn
+          (my-org-beginning-of-line)
+          (if (looking-at "Attendees: ")
+              (forward-char (length "Attendees: "))))
+      (my-org-skip-bullets-forward)
+      (if (looking-back "^\\*+")
+          (forward-char 1))
+      (if (save-excursion
+            (my-org-beginning-of-line)
+            (looking-at "Attendees: "))
+          (progn
+            (my-org-beginning-of-line)
+            (forward-char (length "Attendees: ")))
+        (if (my-org-at-heading-level2-p)
+            (my-org-beginning-of-line))))))
 
 ;; beginning-of-line
 (defun my-org-beginning-of-line ()
@@ -167,7 +179,7 @@
 ;; beginning-of-buffer
 (defun my-org-beginning-of-buffer ()
   (interactive)
-  (my-org-goto-level1-heading)
+  (my-org-goto-heading-level1)
   (recenter 0))
 
 ;; end-of-buffer
@@ -175,64 +187,69 @@
   (interactive)
   (goto-char (point-max))
   (recenter -1)
-  (my-org-search-backward-level2-heading))
+  (my-org-search-backward-heading-level2))
 
 ;; scroll-down-hard
 (defun my-scroll-down-hard ()
   (interactive)
   (let ((pos (point)))
     (if (not (pos-visible-in-window-p (point-max)))
-	(scroll-down-hard))
+        (scroll-down-hard))
     (if (pos-visible-in-window-p (point-max))
-	(progn
-	  (goto-char (point-max))
-	  (recenter -1)
-	  (my-org-search-backward-level2-heading)
-	  (if (= pos (point))
-	      (progn
-		(ding)
-		(message "End of buffer")))))))
+        (progn
+          (goto-char (point-max))
+          (recenter -1)
+          (my-org-search-backward-heading-level2)
+          (if (= pos (point))
+              (progn
+                (ding)
+                (message "End of buffer")))))))
 
 ;; scroll-up-hard
 (defun my-scroll-up-hard ()
   (interactive)
   (let ((pos (point)))
     (if (not (pos-visible-in-window-p (point-min)))
-	(scroll-up-hard))
+        (scroll-up-hard))
     (if (pos-visible-in-window-p (point-min))
-	(progn
-	  (my-org-goto-level1-heading)
-	  (if (= pos (point))
-	      (progn
-		(ding)
-		(message "Beginning of buffer")))))))
+        (progn
+          (my-org-goto-heading-level1)
+          (if (= pos (point))
+              (progn
+                (ding)
+                (message "Beginning of buffer")))))))
 
 ;; kill-line
 (defun my-org-kill-line ()
   (interactive)
-  (if (my-org-beginning-of-heading-p)
+  (if (and (not (org-at-heading-p))
+           (bolp)
+           (eolp))
       (progn
-        (beginning-of-line)
-        (kill-line 1)
-	(if (last-line-p)
-	    (progn
-	      (previous-line 1)
-	      (my-org-beginning-of-line))))
-    (if (and (eolp)
-	     (bolp))
-	(org-delete-char 1)
-      (if (eolp)
-	  (progn
-	    (call-interactively 'kill-line)
-	    (while (looking-at "*")
-	      (delete-char 1)))
-	(call-interactively 'kill-line))))
-  (my-org-skip-bullets-forward))
+        (delete-char 1)
+        (my-org-beginning-of-line))
+
+    (if (and (org-at-heading-p)
+             (my-org-at-beginning-of-heading-p)
+             (eolp))
+        (progn
+          (beginning-of-line)
+          (kill-line 1)
+          (my-org-beginning-of-line)
+          (if (eobp)
+              (backward-delete-char 1 nil)))
+
+      ;; handle sceario
+      (if (and (eolp) (bolp))
+          (delete-char 1))
+      (call-interactively 'kill-line)
+      (while (looking-at "*")
+        (delete-char 1)))))
 
 ;; open-line
 (defun my-org-open-line ()
   (interactive)
-  (if (my-org-beginning-of-heading-p)
+  (if (my-org-at-beginning-of-heading-p)
       (let ((bullets (buffer-substring (line-beginning-position) (point))))
         (beginning-of-line)
         (open-line 1)
@@ -244,116 +261,129 @@
 (defun my-org-return ()
   (interactive)
 
-  ;; Check the no heading options first
+  ;; Check the NO HEADING options first
+  ;; We are not on a heading...
   (if (not (org-at-heading-p))
 
-      ;; In list item, insert new item
+      ;; (a) On a list item somewhere
+      ;;     insert new item
       (if (org-at-item-p)
           (call-interactively 'org-insert-item)
 
-	;; Not in a heading, not in a list, just return
-	(call-interactively 'org-return))
+        ;; (b) Default
+        ;;     just return
+        (call-interactively 'org-return))
 
-    ;; Level 2 heading, expand/hide subtree
-    (if (or (my-org-beginning-of-level2-heading-p)
-	    (my-org-beginning-of-level1-heading-p))
-	(my-org-toggle-expand-collapse-heading)
 
-      ;; Not level 2 heading, open-line
-      (if (my-org-beginning-of-heading-p)
-	  (my-org-open-line)
+    ;; HEADING options
+    ;; In this case we are on a heading...
 
-	;; End of a heading line, new heading respecting content
-	(if (and (org-at-heading-p) (eolp))
-	    (call-interactively 'org-insert-heading-respect-content)
+    ;; (a) At the start of a level 1/2 heading
+    ;;     expand/hide subtree
+    (if (or (my-org-at-beginning-of-heading-level2-p)
+            (my-org-at-beginning-of-heading-level1-p))
+        (my-org-toggle-expand-collapse-heading)
 
-	  ;; Split line creating new heading
-	  (progn
-	    (let ((s (buffer-substring (point) (save-excursion (end-of-line) (point)))))
-	      (kill-line nil)
-	      (delete-horizontal-space)
-	      (call-interactively 'org-insert-heading-respect-content)
-	      (insert s)
-	      (my-org-beginning-of-line)))
-	  )))))
+      ;; (b) Beginning of a level 3+ heading
+      ;;     open-line
+      (if (my-org-at-beginning-of-heading-p)
+          (my-org-open-line)
+
+        ;; (c) End of a heading line
+        ;;     new heading respecting content
+        (if (and (org-at-heading-p) (eolp))
+            (call-interactively 'org-insert-heading)
+
+          ;; (d) In the middle of a heading line
+          ;;     Split line creating new heading and fix up whitepsace
+          (let ((s (buffer-substring (point) (save-excursion (end-of-line) (point)))))
+            (kill-line nil)
+            (delete-horizontal-space)
+            (call-interactively 'org-insert-heading)
+            (insert s)
+            (my-org-beginning-of-line)
+            (delete-horizontal-space)
+            (insert " "))
+          )))))
 
 ;; ctrl-return
 (defun my-org-control-return ()
   (interactive)
-  
+
   ;; Check the no heading options first
   (if (not (org-at-heading-p))
       (progn
-	(call-interactively 'org-return)
-	(delete-horizontal-space))
-    
-    ;; Level 1 or 2 heading, expand/hide subtree
-    (if (or (my-org-beginning-of-level2-heading-p)
-	    (my-org-beginning-of-level1-heading-p))
-	(my-org-toggle-expand-collapse-heading)
+        (call-interactively 'org-return)
+        (delete-horizontal-space))
+
+    ;; At heading beginning, expand/hide subtree
+    (if (my-org-at-beginning-of-heading-p)
+        (my-org-toggle-expand-collapse-heading)
 
       ;; Non level 1 or 2 heading, just open-line,
       ;; leaves *** in the buffer otherwise
-      (if (my-org-beginning-of-heading-p)
-	  (progn
-	    (open-line 1)
-	    (next-line 1)
-	    (beginning-of-line))
+      (if (my-org-at-beginning-of-heading-p)
+          (progn
+            (open-line 1)
+            (next-line 1)
+            (beginning-of-line))
 
-	(call-interactively 'org-return)))))
+        (call-interactively 'org-return)))))
 
 ;; meta-return
 (defun my-org-meta-return ()
   (interactive)
-  (if (my-org-beginning-of-level2-heading-p)
+  (if (my-org-at-beginning-of-heading-level2-p)
       (my-org-toggle-expand-collapse-heading)
     (progn
       (end-of-line)
       (call-interactively 'org-insert-heading-respect-content))))
 
 ;; next-line-level2
-(defun my-org-next-line-level2-heading ()
+(defun my-org-next-line-heading ()
   (interactive)
   (let ((pos (point)))
     (re-search-forward "^\\*\\* " nil t)
     (if (= pos (point))
-	(message "Last heading"))))
+        (message "Last heading"))))
 
 ;; previous-line-level2
-(defun my-org-previous-line-level2-heading ()
+(defun my-org-previous-line-heading ()
   (interactive)
   (let ((pos (point)))
     (beginning-of-line)
     (re-search-backward "^\\*\\* " nil t)
     (my-org-beginning-of-line)
     (if (= pos (point))
-	(message "First heading"))))
+        (message "First heading"))))
 
 ;; l
 (defun l-key ()
   (interactive)
-  (if (my-org-beginning-of-level2-heading-p)
+  (if (my-org-at-beginning-of-heading-level2-p)
       (recenter)
     (call-interactively 'org-self-insert-command)))
 
 ;; n
 (defun n-key ()
   (interactive)
-  (if (my-org-beginning-of-level2-heading-p)
-      (my-org-next-line-level2)
+  (if (or (my-org-at-beginning-of-heading-level1-p)
+          (my-org-at-beginning-of-heading-level2-p))
+      (my-org-next-line-level2-heading)
     (call-interactively 'org-self-insert-command)))
 
 ;; p
 (defun p-key ()
   (interactive)
-  (if (my-org-beginning-of-level2-heading-p)
-      (my-org-previous-line-level2)
+  (if (or (my-org-at-beginning-of-heading-level1-p)
+          (my-org-at-beginning-of-heading-level2-p))
+      (my-org-previous-line-level2-heading)
     (call-interactively 'org-self-insert-command)))
 
 ;; o
 (defun o-key ()
   (interactive)
-  (if (my-org-beginning-of-level2-heading-p)
+  (if (my-org-at-beginning-of-heading-level2-p)
       (my-org-return)
     (call-interactively 'org-self-insert-command)))
 
@@ -370,10 +400,9 @@
     (org-capture-finalize)
     (switch-to-buffer "meetings.org")
     (goto-char (point-min))
-    (re-search-forward "^\\*\\* " nil t)
-    (my-org-toggle-narrow-widen)))
+    (re-search-forward "^\\*\\* " nil t)))
 
-(advice-add 'org-capture :after (lambda (&rest args) 
+(advice-add 'org-capture :after (lambda (&rest args)
                                   (apply #'my-org-capture-hook args)))
 
 ;;=============================================================================
@@ -400,10 +429,10 @@
     (let (expanded)
       (while (and (not expanded)
                   (re-search-forward "^\\*\\*\\* " nil t))
-	(beginning-of-line)  
+        (beginning-of-line)
         (when (my-org-line-visible-p)
           (setq expanded t))
-        (end-of-line))       
+        (end-of-line))
       expanded)))
 
 ;; toggle-expand-collapse-buffer
@@ -416,80 +445,88 @@
     (outline-show-all))
   (save-excursion
     (if (re-search-backward "^\\*\\* " nil t)
-	(recenter 10))))
+        (recenter 10))))
 
-;; toggle-expand-collapse-heading
 (defun my-org-toggle-expand-collapse-heading ()
   (interactive)
-  (when (org-at-heading-p) 
-    (if (org-fold-folded-p (line-end-position)) 
-        (org-show-subtree) 
-      (org-fold-hide-subtree)))) 
+  (when (org-at-heading-p)
+    ;; If the text after this heading is invisible, it's folded; show it.
+    (if (outline-invisible-p (line-end-position))
+        (org-fold-show-subtree)
+      (org-fold-hide-subtree))))
 
 ;; toggle-narrow-widen
 (defun my-org-toggle-narrow-widen ()
   (interactive)
   (save-excursion
-    (if (not (my-org-search-backward-level2-heading))
-	(message "Not currently in a second level list heading.")
+    (if (not (my-org-search-backward-heading-level2))
+        (message "Not currently in a second level list heading.")
       (progn
-	;; Collapse everything to 2 levels, and
-	;; Expand the current level 2 list item subtree
-	(outline-hide-sublevels 2)
-	(org-show-subtree)
+        ;; Collapse everything to 2 levels, and
+        ;; Expand the current level 2 list item subtree
+        (outline-hide-sublevels 2)
+        (org-show-subtree)
 
-	;; Toggle wide/narrow
-	(if (buffer-narrowed-p)
-	    (progn
-	      (widen)
-	      (recenter 10)) ; move list 2 heading to line 10
-	  (org-narrow-to-subtree))))))
+        ;; Toggle wide/narrow
+        (if (buffer-narrowed-p)
+            (progn
+              (widen)
+              (recenter 10)) ; move list 2 heading to line 10
+          (org-narrow-to-subtree))))))
 
-;;=============================================================================
-;; copy-to-slack
-;;=============================================================================
 (defun org-copy-to-slack ()
   (interactive)
   (save-excursion
-    ;; Ensure we are on a heading
+    ;; Ensure we are on a heading.
     (unless (org-at-heading-p)
       (error "Not at an Org heading"))
-    ;; Go to the beginning of the current heading
+    ;; Go to the beginning of the current heading.
     (org-back-to-heading t)
-    (let ((beg (point)))  ;; Start of the subtree
-      ;; Move to the end of the subtree
+    (let ((beg (point)))  ;; Start of the subtree.
+      ;; Move to the end of the subtree.
       (org-end-of-subtree t t)
-      (let ((end (point)))  ;; End of the subtree
-	;; Extract the raw text of the subtree
-	(let* ((raw-text (buffer-substring-no-properties beg end))
-	       (lines (split-string raw-text "\n"))
-	       (ast-regex "^\\*+")
-	       ;; Determine how many asterisks are on the first line
-	       (first-line (car lines))
-	       (first-match-len (if (string-match ast-regex first-line)
-				    (length (match-string 0 first-line))
-				  0))
-	       ;; Calculate the shift to make the first line have 1 asterisk
-	       (shift (max 0 (1- first-match-len)))
-	       (converted-lines
-		(mapcar
-		 (lambda (line)
-		   (if (string-match ast-regex line)
-		       (let* ((stars (match-string 0 line))
-			      (star-len (length stars))
-			      (new-as (max 1 (- star-len shift))) ; Normalize asterisks
-			      (rest (replace-regexp-in-string "^\\*+ *" "" line))
-			      (num-initial (max 0 (1- new-as))) ; Indent by level
-			      (indent-string (make-string (* 4 num-initial) ?\ ))
-			      (dash "- "))
-			 (concat indent-string dash rest))
-		     ;; If no leading asterisks, keep line unchanged
-		     line))
-		 lines))
-	       (converted-text (string-join converted-lines "\n")))
-	  ;; Copy the transformed text to the clipboard
-	  (kill-new converted-text)
-	  (message "Converted %d lines, copied to clipboard for Slack." (length lines)))))))
+      (let ((end (point)))  ;; End of the subtree.
+        ;; Extract the raw text of the subtree.
+        (let* ((raw-text (buffer-substring-no-properties beg end))
+               (lines (split-string raw-text "\n"))
+               (asterisk-regex "^\\*+")
+               ;; Determine how many asterisks are on the first line.
+               (first-line (car lines))
+               (first-match-len (if (string-match asterisk-regex first-line)
+                                    (length (match-string 0 first-line))
+                                  0))
+               ;; Calculate the shift to make the first line have 1 asterisk.
+               (shift (max 0 (1- first-match-len)))
+               (prev-indent "")  ;; Will hold the most recent heading's indent.
+               (converted-lines
+                (mapcar
+                 (lambda (line)
+                   (if (string-match asterisk-regex line)
+                       (let* ((stars (match-string 0 line))
+                              (star-len (length stars))
+                              (new-as (max 1 (- star-len shift))) ; Normalize asterisks.
+                              (rest (replace-regexp-in-string "^\\*+ *" "" line))
+                              (num-initial (max 0 (1- new-as))) ; Compute indent level.
+                              (indent-string (make-string (* 4 num-initial) ?\ )) ; Create indent.
+                              (dash "- "))
+                         (setq prev-indent (concat "                  " indent-string)) ; Save current indent.
+                         (concat indent-string dash rest))
+                     ;; For non-heading lines, prepend the saved indent.
+                     (concat prev-indent (string-trim-left line))))
+                 lines))
+
+               (converted-text
+                (replace-regexp-in-string
+                 "\\[\\[\\([^]]+\\)\\]\\[\\([^]]+\\)\\]\\]"
+                 "<\\1|\\2>"
+                 (replace-regexp-in-string
+                  ":100:"
+                  (concat ":" "\u200B" "100:")
+                  (string-join converted-lines "\n")))))
+
+          (kill-new converted-text)
+          (message "Converted %d lines, copied to clipboard for Slack." (length lines)))))))
+
 
 ;;=============================================================================
 ;; Capture Templates
@@ -498,8 +535,7 @@
       '(;; 1. Meeting Notes
         ("m" "Meeting" entry
          (file+headline "~/doc/meetings.org" "Meetings")
-         "* %? %U\n** Attendees: \n** Discussion\n*** \n"
-         ;; "* %? %(my-org-date)\n** Attendees: \n** Discussion\n*** \n"
+         "* %? %U\n** Attendees: \n** Discussion\n"
          :prepend t)))
 
 (setq org-agenda-files '("~/doc/meetings.org"
@@ -519,7 +555,8 @@
  '(org-level-6 ((t (:foreground "LightCyan1"))))
  '(org-level-7 ((t (:foreground "LightCyan1"))))
  '(org-level-8 ((t (:foreground "LightCyan1"))))
- '(org-level-9 ((t (:foreground "LightCyan1")))))
+ '(org-level-9 ((t (:foreground "LightCyan1"))))
+ '(org-level-10 ((t (:foreground "LightCyan1")))))
 
 ;;=============================================================================
 ;; Org Modern package
@@ -528,7 +565,7 @@
   :hook (org-mode . org-modern-mode)
   :config
   (setq org-modern-star "•"
-	org-modern-table nil))
+        org-modern-table nil))
 
 ;;=============================================================================
 ;; TODO Management
@@ -551,7 +588,7 @@
   "Set the priority of the current Org Agenda item to PRIORITY-CHAR."
   (interactive "cSet priority to (A-D): ")
   (org-agenda-with-point-at (point)
-    (org-priority priority-char)))
+                            (org-priority priority-char)))
 
 ;;=============================================================================
 ;; Key bindings
@@ -626,7 +663,7 @@
 
 (global-set-key (kbd "C-c m") #'my-org-capture-meeting)
 (global-set-key (kbd "C-c a") 'org-agenda)
-(define-key global-map (kbd "C-c t") 
-  (lambda () 
-    (interactive) 
-    (org-agenda nil "t")))
+;; (define-key global-map (kbd "C-c t")
+;;   (lambda ()
+;;     (interactive)
+;;     (org-agenda nil "t")))
