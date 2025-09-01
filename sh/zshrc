@@ -1,0 +1,426 @@
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Operating System Detection
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export IS_MACOS=true
+    export IS_DEBIAN=false
+else
+    export IS_MACOS=false
+    export IS_DEBIAN=true
+fi
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Z Shell Options
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+export ENABLE_CORRECTION="true"                                                      # Enable spell correction for mistyped commands and paths. When set to "true", Zsh will attempt to correct minor spelling errors.
+export COMPLETION_WAITING_DOTS="true"                                                # Display animated dots while the shell is processing command completions. This provides visual feedback during potentially long completion operations.
+export HISTSIZE=5000                                                                 # Set the maximum number of events stored in the internal history.
+export HISTFILE=~/.zsh_history                                                       # Define the file where the command history is saved.
+export SAVEHIST=5000                                                                 # Specify the number of history entries to save to the history file.
+export HISTDUP=erase                                                                 # Configure how duplicate history entries are handled. Setting to "erase" removes previous duplicates when a new duplicate is added.
+# Set default editor based on OS
+if [[ $IS_MACOS == true ]]; then
+    export EDITOR='/Applications/Emacs.app/Contents/MacOS/bin-arm64-11/emacsclient'  # Set the default editor to Emacs client for command-line editing tasks.
+    export VISUAL='/Applications/Emacs.app/Contents/MacOS/bin-arm64-11/emacsclient'  # Set the default visual editor to Emacs client. This is used by programs that require a visual editor, like `git commit`.
+else
+    export EDITOR='vi'                                                               # Set default editor for Linux/Debian
+    export VISUAL='vi'                                                               # Set default visual editor for Linux/Debian
+fi
+export AUTO_CD=true                                                                  # Enable automatic changing of directories. Allows you to switch directories by simply typing the directory name without using `cd`.
+setopt appendhistory                                                                 # Enable appending to the history file, rather than overwriting it.
+setopt incappendhistory                                                              # Enable incremental history appending. Writes to the history file as commands are entered, rather than waiting until the session ends.
+setopt hist_ignore_all_dups                                                          # Prevent duplicate entries in the command history.
+setopt hist_save_no_dups                                                             # Save only unique entries to the history file.
+setopt hist_ignore_dups                                                              # Ignore duplicate commands when adding to history.
+setopt hist_find_no_dups                                                             # Prevent duplicate entries when searching through history.
+autoload -Uz compinit && compinit                                                    # Initialize the Zsh completion system. Loads all the necessary functions for command-line completion.
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'                               # Configure the completion system to perform case-insensitive matching. Allows you to use uppercase or lowercase letters interchangeably during completions.
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Uses emacs bindings for the CLI, but vi-like Ctrl-p/Ctr-n, emacs Ctrl-s/Ctrl-r
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+bindkey -e                                                                           # Set the key bindings to Emacs mode.
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^P' up-line-or-beginning-search
+bindkey '^N' down-line-or-beginning-search
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# API AI Keys
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [ -f '~/.env' ]; then . ~/.env; fi
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Custom Functions and Variables
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+export ZSH_SPECTRUM_TEXT=${ZSH_SPECTRUM_TEXT:-Arma virumque cano Troiae ab oris}     # Define the default text to display when showcasing all 256 terminal colors.
+function colors() {                                                                  # Function to display all 256 terminal colors along with their corresponding color codes.
+    for code in {000..255}; do
+        print -P -- "$code: %F{$code}$ZSH_SPECTRUM_TEXT%{$reset_color%}"
+    done
+}
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Python configuration
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+export PATH="$HOME/.pyenv/shims:$PATH"                                               # Allows pyenv python to take priority over system python
+export PATH="~/.local/bin:$PATH"                                                     # For pipx
+alias p='python3'
+alias p3='python3'
+# poetry completions zsh > ~/.zfunc/_poetry
+# fpath+=~/.zfunc
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Claude Code
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+alias ccc='claude --dangerously-skip-permissions --continue'
+alias cc='claude --dangerously-skip-permissions'
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Package Manager Configuration (Homebrew for macOS, APT for Debian)
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [[ $IS_MACOS == true ]]; then
+    # Homebrew Configuration for macOS
+    export HOMEBREW_PREFIX="/opt/homebrew"
+    export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+    export HOMEBREW_REPOSITORY="/opt/homebrew"
+    export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"                      # Add Homebrew binaries to PATH
+    export MANPATH=$MANPATH:/opt/homebrew/share/man                                     # Add Homebrew man pages to respective paths
+    export INFOPATH=$INFOPATH:/opt/homebrew/share/info                                  # Add Homebrew info pages to respective paths
+fi
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Node Version Manager (NVM)
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                                   # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"                 # This loads nvm bash_completion
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# General
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+alias genpdf='markdown-pdf'                                                        # Convert Markdown to PDF
+alias path='echo -e ${PATH//:/\\n}'                                                # Display each PATH entry on separate lines
+# Tag generation aliases based on OS
+if [[ $IS_MACOS == true ]]; then
+    alias tag="find . -type f | grep -v node_modules | grep -v .venv | grep -v '/.#' | grep -v .git | /Applications/Emacs.app/Contents/MacOS/bin/etags -"  # Generate tags excluding certain directories
+    alias tagall="find . -type f | grep -v .git | grep -v node_modules | grep -v .venv | grep -v '/.#' | /Applications/Emacs.app/Contents/MacOS/bin/etags -"  # Generate all tags excluding certain directories
+else
+    alias tag="find . -type f | grep -v node_modules | grep -v .venv | grep -v '/.#' | grep -v .git | etags -"  # Generate tags excluding certain directories
+    alias tagall="find . -type f | grep -v .git | grep -v node_modules | grep -v .venv | grep -v '/.#' | etags -"  # Generate all tags excluding certain directories
+fi
+alias lc="find . -type f -name '*.js' -print | grep -v node_ | grep -v .git | grep -v '/.#' | xargs wc -l"     # Line count for JS files
+tre() { tree -aC -I '.git|node_modules|.DS_Store' --dirsfirst "$@"; }              # Display directory tree excluding certain directories
+zipf() { zip -r "$1".zip "$1"; }                                                   # Create a ZIP archive of a folder
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Operating System CLIs
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+alias grep='grep --color=auto'                                                     # Enable colored output for grep
+du() { "du -hs "$1:-." 2>/dev/null | sort -h" }                                    # Human-readable disk usage sorted
+alias cls='tput clear'                                                             # Clear terminal using tput
+alias curl='curl -s'                                                               # Silent curl
+alias diff="diff -y --suppress-common-lines"                                       # Side-by-side diff without common lines
+alias mkdir='mkdir -pv'                                                            # Make directories and parents
+alias mv='mv -iv'                                                                  # Interactive move with verbose
+# File manager aliases based on OS
+if [[ $IS_MACOS == true ]]; then
+    alias o='open .'                                                                   # Open current directory in Finder
+else
+    alias o='xdg-open . 2>/dev/null || nautilus . 2>/dev/null || echo "No file manager found"'  # Open current directory in default file manager
+fi
+alias week='date +%V'                                                              # Display current week number
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Operating System ls
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [[ $IS_MACOS == true ]]; then
+    # macOS-specific ls configuration
+    auto=$(defaults read -g AppleInterfaceStyleSwitchesAutomatically 2>/dev/null)
+    mode=$(defaults read -g AppleInterfaceStyle 2>/dev/null)
+    if { [[ "$auto" == "1" && -z "$mode" ]] || [[ "$mode" == "Dark" ]]; }; then
+      export LSCOLORS="GxBxxxxxCxxxxxxxxxGxGx"
+    else
+      export LSCOLORS="ExFxBxDxCxegedabagacad"
+    fi
+else
+    # Linux/Debian ls configuration using dircolors
+    if command -v dircolors >/dev/null 2>&1; then
+        test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+        export LS_COLORS
+    fi
+fi
+# ls aliases based on OS
+if [[ $IS_MACOS == true ]]; then
+    alias l="ls -1FG"                                                                  # List files with indicators
+    alias la='ls -1AFG'                                                                # List all files with indicators
+    alias ll='ls -FGlAhp'                                                              # Detailed list view
+    alias ls="command ls -G"                                                           # Enable colored ls
+    alias lsa="command ls -aG"                                                         # List all with colors
+    alias lsd="ls -lFG | grep --color=never '^d'"                                      # List directories only
+else
+    alias l="ls -1F --color=auto"                                                      # List files with indicators
+    alias la='ls -1AF --color=auto'                                                    # List all files with indicators
+    alias ll='ls -FlAhp --color=auto'                                                  # Detailed list view
+    alias ls="command ls --color=auto"                                                 # Enable colored ls
+    alias lsa="command ls -a --color=auto"                                             # List all with colors
+    alias lsd="ls -lF --color=auto | grep --color=never '^d'"                          # List directories only
+fi
+alias less='less -FSRXc'                                                           # Enhanced less
+alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'''  # Recursive ls with formatting
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Google Cloud SDK
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [ -f '~/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '~/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '~/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '~/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Docker
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+alias drm='docker rm $(docker ps -a -q)'                                           # Remove all Docker containers
+alias dstop='docker stop $(docker ps -a -q)'                                       # Stop all Docker containers
+dclean() { echo "Stopping all Docker containers..."; docker stop $(docker ps -a -q); echo "Removing all Docker containers..."; docker rm $(docker ps -a -q) } # Clean up Docker containers
+drun() { echo "Running Docker container: $@"; docker run -d --name "$@"; }         # Run a Docker container in detached mode with a specified name
+dsh() { echo "Accessing shell in Docker container: $@"; docker exec -it "$@" /bin/bash; } # Access a shell inside a Docker container
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Editor aliases
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Editor aliases based on OS
+if [[ $IS_MACOS == true ]]; then
+    # alias code='/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code'  # Visual Studio
+    alias e='/Applications/Emacs.app/Contents/MacOS/bin-arm64-11/emacsclient'          # Emacs client
+else
+    # alias code='code'  # Visual Studio Code (if installed via package manager)
+    alias e='emacsclient'                                                              # Emacs client
+fi
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Finding files
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+f()      { find . -type f -name "*$@*" -print | grep -v node_ | grep -v .git | grep -v '/.#' }                     # Find all regular files matching a pattern, excluding node_, .git, and temporary files
+fjs()    { find . -name '*.js' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }             # Find all JavaScript (*.js) files, excluding node_modules, .git, and temporary files
+fts()    { find . -name '*.ts' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }             # Find all TypeScript (*.ts) files, excluding node_modules, .git, and temporary files
+fyaml()  { find . -name '*.yaml' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }           # Find all YAML (*.yaml) files, excluding node_modules, .git, and temporary files
+fswift() { find . -name '*.swift' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }          # Find all Swift (*.swift) files, excluding node_modules, .git, and temporary files
+fs()     { find . -name "$@"'*' -print | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }     # Find files starting with a specific string, excluding node_, .git, and temporary files
+fe()     { find . -name '*'"$@" -print | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }     # Find files ending with a specific string, excluding node_, .git, and temporary files
+todo()   { find . -type f -name "*.js" ! -path "./node_modules/*" -exec grep -H "TODO:" {} \; | sed "s/: */: /g" } # Find TODO comments in JavaScript files
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Grep Files for Matching Text
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+g()      { find . | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }                     # Search for a string in all files, excluding node_, .git directories, and files containing 'TAG'
+gjs()    { find . -name '*.js' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }        # Search for a string within JavaScript (*.js) files, excluding node_, .git directories, and files containing 'TAG'
+gts()    { find . -name '*.ts' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }        # Search for a string within TypeScript (*.ts) files, excluding node_, .git directories, and files containing 'TAG'
+gyaml()  { find . -name '*.yaml' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }      # Search for a string within YAML (*.yaml) files, excluding node_, .git directories, and files containing 'TAG'
+# Search functions based on OS
+if [[ $IS_MACOS == true ]]; then
+    spot()   { mdfind "kMDItemDisplayName == '*$@*'"; }                                                                # Search Spotlight for a specific item
+else
+    spot()   { find / -name "*$@*" 2>/dev/null | head -20; }                                                       # Search filesystem for a specific item (Linux alternative)
+fi
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# YAML and JSON Manipulation Functions Using yq
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+yvalid() { yq eval '.' "$1" > /dev/null }                                                                          # Validate YAML syntax
+y2j()    { yq eval '.' "$1" -o=json }                                                                              # Convert YAML to JSON
+jvalid() { yq eval '.' "$1" -o=json > /dev/null }                                                                  # Validate JSON syntax
+j2y()    { cat "$1" | yq eval '.' -o=yaml }                                                                        # Convert JSON to YAML
+jfmt()   { cat "$1" | jq . }                                                                                       # Format JSON
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Git Primary Functions
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+s() { echo "git status --short"; git status --short; }                                                             # Show short status
+ga() { echo "git add ."; git add .; }                                                                              # Add all changes
+gc() { echo "git add -A && git commit -am $@"; git add -A && git commit -am "$@"; }                                # Add all changes and commit with a message
+gpr() { echo "git pull --rebase --prune"; git pull --rebase --prune; }                                             # Pull with rebase and prune
+grc() { echo "git add . && git rebase --continue"; git add . && git rebase --continue; }                           # Continue rebase after adding changes
+gp() { echo "git push origin $(git rev-parse --abbrev-ref HEAD)"; git push origin "$(git rev-parse --abbrev-ref HEAD)"; } # Push to the current branch
+gco() { echo "git checkout -b sc/$1 2>/dev/null || git checkout sc/$1"; git checkout -b sc/"$1" 2>/dev/null || git checkout sc/"$1"; } # Checkout or create a feature branch
+gcom() { echo "git checkout master"; git checkout master; }                                                        # Checkout master branch
+gm() { echo "git pull --rebase --prune && git merge --squash --ff-only sc/$1"; git pull --rebase --prune && git merge --squash --ff-only sc/"$1"; } # Pull and merge a feature branch with squash
+gl() { echo "git log --pretty=format:'%Cblue%h %ad %Cgreen%cn %Creset%s %Cred%d' --decorate --date=short -n 20"; git log --pretty=format:'%Cblue%h %ad %Cgreen%cn %Creset%s %Cred%d' --decorate --date=short -n 20; } # Display formatted git log
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Git Extraneous Functions
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+gcommits() { echo "git shortlog --summary --numbered"; git shortlog --summary --numbered; }                        # Show commit summaries
+gd() { echo "git diff $@"; git diff "$@"; }                                                                        # Show git diff
+igls() { echo "git log --pretty=format:'%Cblue%ad %Cgreen%cn %Creset%s' --decorate -n 20 --stat --date=short"; git log --pretty=format:'%Cblue%ad %Cgreen%cn %Creset%s %Cred%d' --decorate --date=short -n 20 --stat; } # Display detailed git log with stats
+gpf() { echo "git push -f origin $(git rev-parse --abbrev-ref HEAD)"; git push -f origin "$(git rev-parse --abbrev-ref HEAD)"; } # Force push current branch
+gprb() { echo "git fetch && git rebase origin/master"; git fetch && git rebase origin/master; }                    # Fetch and rebase from master
+grh() { echo "git reset HEAD^"; git reset HEAD^; }                                                                 # Reset to previous commit
+gs() { echo "git log -1 --pretty=format:'%Cblue%ad %Cgreen%cn %Creset%s' --decorate --date=short $1"; git log -1 --pretty=format:'%Cblue%ad %Cgreen%cn %Creset%s' --decorate --date=short "$1"; } # Show last commit with specific format
+gsb() { echo "git show-branch -a"; git show-branch -a; }                                                           # Show all branches
+gsb2() { echo "git show-branch $(git symbolic-ref --short HEAD) master"; git show-branch "$(git symbolic-ref --short HEAD)" master; } # Show current and master branch
+gt() { echo "git tag -l"; git tag -l; }                                                                            # List all tags
+gb() { echo "git branch -avv"; git branch -avv; }                                                                  # List all branches with details
+gbd() { echo "git branch -D sc/$@"; git branch -D "sc/$@"; }                                                       # Delete a feature branch
+gbehind() { echo "git log --pretty=format:'%Cblue%ad %Creset%s%Cgreen [%cn] %Cred%d' --decorate --date=short -n 25 ^$(git rev-parse --abbrev-ref HEAD) master"; git log --pretty=format:"%Cblue%ad %Creset%s%Cgreen [%cn] %Cred%d" --decorate --date=short -n 25 "^$(git rev-parse --abbrev-ref HEAD)" master; } # Show commits behind master
+gca() { echo "git commit --amend"; git commit --amend; }                                                           # Amend the last commit
+gchanges() { echo "git log $(git merge-base HEAD master)..$(git symbolic-ref --short HEAD)"; git log "$(git merge-base HEAD master)".."$(git symbolic-ref --short HEAD)"; } # Show changes between current branch and master
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Python Virtual Environment Support
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Function to find the nearest .venv directory
+find_virtualenv() {
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        if [[ -d "$dir/.venv" ]]; then
+            echo "$dir/.venv"
+            return
+        fi
+        dir=$(dirname "$dir")
+    done
+    return 1
+}
+
+# Function to load the virtual environment
+# Make sure find_virtualenv is defined above load_virtualenv
+load_virtualenv() {
+    green='%F{119}'
+    reset='%f'
+
+    local venv_path
+    venv_path=$(find_virtualenv)
+
+    if [[ -n "$venv_path" ]]; then
+        # If a virtualenv is found and it's different from the current one
+        if [[ "$VIRTUAL_ENV" != "$venv_path" ]]; then
+            # Deactivate the current virtualenv if one is active
+            if [[ -n "$VIRTUAL_ENV" ]]; then
+                deactivate
+            fi
+            # Activate the new virtualenv
+            source "$venv_path/bin/activate"
+            print -P "\n${green}Activated Python Virtual Environment:\n$venv_path${reset}"
+        fi
+    else
+        # If no virtualenv is found and one is active, deactivate it
+        if [[ -n "$VIRTUAL_ENV" ]]; then
+            deactivate
+            print -P "\n${green}Deactivated Python Virtual Environment${reset}"
+        fi
+    fi
+}
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Prompt and CD tweaks
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Theme detection and prompt configuration
+if [[ $IS_MACOS == true ]]; then
+    auto=$(defaults read -g AppleInterfaceStyleSwitchesAutomatically 2>/dev/null)
+    mode=$(defaults read -g AppleInterfaceStyle 2>/dev/null)
+    if { [[ "$auto" == "1" && -z "$mode" ]] || [[ "$mode" == "Dark" ]]; }; then
+      export LSCOLORS="GxBxxxxxCxxxxxxxxxGxGx"
+    else
+      export LSCOLORS="ExFxBxDxCxegedabagacad"
+    fi
+fi
+
+precmd() {
+    # Get dynamic user and hostname
+    local current_user=$(id -un)
+    local current_host=$(hostname -s)
+
+    # Define color variables based on OS and theme
+    if [[ $IS_MACOS == true ]]; then
+        # Detect light/dark mode on macOS
+        local auto=$(defaults read -g AppleInterfaceStyleSwitchesAutomatically 2>/dev/null)
+        local mode=$(defaults read -g AppleInterfaceStyle 2>/dev/null)
+
+        if { [[ "$auto" == "1" && -z "$mode" ]] || [[ "$mode" == "Dark" ]]; }; then
+            # Dark mode colors
+            local bracket='%F{white}'
+            local username='%F{172}'  # Orange
+            local at='%F{white}'
+            local hostname='%F{172}'  # Orange
+            local branch_color='%F{cyan}'
+            local venv_color='%F{cyan}'
+            local path_color='%F{231}'  # Bright white
+        else
+            # Light mode colors
+            local bracket='%F{240}'     # Dark gray
+            local username='%F{166}'    # Dark orange
+            local at='%F{240}'          # Dark gray
+            local hostname='%F{166}'    # Dark orange
+            local branch_color='%F{25}' # Dark blue
+            local venv_color='%F{25}'   # Dark blue
+            local path_color='%F{0}'    # Black
+        fi
+    else
+        # Default colors for Linux/Debian
+        local bracket='%F{240}'     # Dark gray
+        local username='%F{166}'    # Dark orange
+        local at='%F{240}'          # Dark gray
+        local hostname='%F{166}'    # Dark orange
+        local branch_color='%F{25}' # Dark blue
+        local venv_color='%F{25}'   # Dark blue
+        local path_color='%F{0}'    # Black
+    fi
+    local reset='%f' # Resets color
+
+    # Git Branch Information
+    local branch
+    local name
+    name=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
+    [[ -n "$name" ]] && {
+        branch=" (git: ${branch_color}${name}${reset})"
+    }
+
+    # Python Virtual Environment Information
+    local venv
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        venv_name=$(basename "$VIRTUAL_ENV") # Extract the name of the virtualenv (assuming it's the directory name)
+        venv=" (venv: ${venv_color}${venv_name}${reset})"
+    fi
+
+    # Construct the Prompt with dynamic user and hostname
+    PROMPT="${bracket}[${username}${current_user}${at}@${hostname}${current_host}${bracket}]${branch}${venv}${path_color} %~ >
+$ "
+}
+
+# This is a ZSHRC hook that runs after the directory is changed
+function chpwd() {
+    # By default list files when we change directories (OS-specific)
+    if [[ $IS_MACOS == true ]]; then
+        ls -1FG
+    else
+        ls -1F --color=auto
+    fi
+
+    # Run the virtualenv load/unload logic:
+    load_virtualenv
+}
+export PATH="$(npm bin -g):$PATH"
+
+# Added by Windsurf
+export PATH="~/.codeium/windsurf/bin:$PATH"
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Claude Code
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# export CLAUDE_CODE_SHELL_PREFIX="zsh -ic"
+alias tasks="node ~/src/sync/tasks.js"
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Devcontainer CLI Aliases
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+alias devup='devcontainer up --workspace-folder .'
+alias devcc='devcontainer exec --workspace-folder . claude --dangerously-skip-permissions'
+alias devccc='devcontainer exec --workspace-folder . claude --dangerously-skip-permissions -c'
+alias devls='devcontainer list --workspace-folder .'
+alias devlsall='devcontainer list'
+alias devrm='devcontainer stop --workspace-folder . && docker container prune -f'
+alias devrmall='docker stop $(docker ps -aq) && docker container prune -f && docker image prune -f'
+alias devsh='devcontainer exec --workspace-folder . zsh'
+devexec() { devcontainer exec --workspace-folder . "$@"; }

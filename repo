@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+SOURCE="$HOME/src/dotfiles"
+REPO="."
+
+# Claude configuration
+mkdir -p $REPO/.claude
+cp $SOURCE/claude/settings.json $REPO/.claude/settings.json
+cp -r $SOURCE/claude/commands $REPO/.claude/commands
+cp -r $SOURCE/claude/scripts $REPO/.claude/scripts

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+symlink() {
+    local SOURCE="$1"
+    local TARGET="$2"
+
+    # Create parent directory if it doesn't exist
+    mkdir -p "$(dirname "TARGET")"
+
+    # Remove existing file/symlink if it exists
+    if [ -e "$TARGET" ] || [ -L "$TARGET" ]; then
+        rm -rf $TARGET
+    fi
+
+    echo "Linking $SOURCE -> $TARGET"
+    ln -sf $SOURCE $TARGET
+}
+
+SRC="$HOME/src/dotfiles"
+
+# Shell configuration
+symlink $SRC/sh/zshrc $HOME/.zshrc
+
+# Emacs configuration
+symlink $SRC/emacs/emacs $HOME/.emacs
+symlink $SRC/emacs/emacs.d $HOME/.emacs.d
+
+# Claude configuration
+symlink $SRC/claude/settings.json $HOME/.claude/settings.json
+symlink $SRC/claude/commands $HOME/.claude/commands
+symlink $SRC/claude/scripts $HOME/.claude/scripts

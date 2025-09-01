@@ -1,0 +1,31 @@
+{
+  "model": "sonnet",
+  "statusLine": {
+    "type": "command", 
+    "command": "chmod +x .claude/scripts/statusline.sh 2>/dev/null; bash .claude/scripts/statusline.sh"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ $(jq -r .tool_input.file_path 2>/dev/null) == */Users/shane/src/claude-code-docs/* ]]; then LAST_PULL=\"/Users/shane/src/claude-code-docs/.last_pull\" && NOW=$(date +%s) && GITHUB_TS=$(jq -r .last_updated \"/Users/shane/src/claude-code-docs/docs/docs_manifest.json\" 2>/dev/null | cut -d. -f1) && GITHUB_UNIX=$(date -j -u -f \"%Y-%m-%dT%H:%M:%S\" \"$GITHUB_TS\" \"+%s\" 2>/dev/null || echo 0) && if [[ -f \"$LAST_PULL\" ]]; then LAST=$(cat \"$LAST_PULL\"); if [[ $GITHUB_UNIX -gt $LAST ]]; then echo \"🔄 Updating docs to latest version...\" >&2 && (cd /Users/shane/src/claude-code-docs && git pull --quiet) && echo $NOW > \"$LAST_PULL\"; fi; else echo \"🔄 Syncing docs for the first time...\" >&2 && (cd /Users/shane/src/claude-code-docs && git pull --quiet) && echo $NOW > \"$LAST_PULL\"; fi; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$OSTYPE\" == \"darwin\"* ]]; then uv run --no-project \".claude/scripts/notify.py\"; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
+

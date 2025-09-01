@@ -1,6 +1,0 @@
-;;;; -*- mode: lisp-data -*-
-(
- (:id "sha1:1dd1af4a16d2ed2802679be2de23161d1f79b3c7" :fingerprints ("sha1:14:e9:4d:ec:9c:28:f9:68:f0:1e:6f:00:70:76:53:b4:90:8c:cc:bd" "sha1:7d:bd:75:de:47:d7:b1:f0:1e:0b:62:69:09:1d:c2:07:e9:bf:37:74") :host "elpa.nongnu.org:443" :conditions (:same-cert))
- (:id "sha1:6d4eb958390599243ba9f5035cb671fa8dd6a93a" :fingerprints ("sha1:14:e9:4d:ec:9c:28:f9:68:f0:1e:6f:00:70:76:53:b4:90:8c:cc:bd" "sha1:7d:bd:75:de:47:d7:b1:f0:1e:0b:62:69:09:1d:c2:07:e9:bf:37:74") :host "elpa.gnu.org:443" :conditions (:same-cert))
- (:id "sha1:85b31c268009209a8d3c5387033b219264f7e62b" :fingerprints ("sha1:14:e9:4d:ec:9c:28:f9:68:f0:1e:6f:00:70:76:53:b4:90:8c:cc:bd" "sha1:1b:0b:b1:60:8c:1c:ec:23:64:1e:39:c3:92:74:5a:7f:a7:63:0d:4e") :host "melpa.org:443" :conditions (:same-cert))
-)
