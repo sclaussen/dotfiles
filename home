@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-symlink() {
+copy_file() {
     local SOURCE="$1"
     local TARGET="$2"
 
@@ -12,20 +12,20 @@ symlink() {
         rm -rf $TARGET
     fi
 
-    echo "Linking $SOURCE -> $TARGET"
-    ln -sf $SOURCE $TARGET
+    echo "Copying $SOURCE -> $TARGET"
+    cp -r $SOURCE $TARGET
 }
 
 SRC="$HOME/src/dotfiles"
 
 # Shell configuration
-symlink $SRC/sh/zshrc $HOME/.zshrc
+copy_file $SRC/sh/zshrc $HOME/.zshrc
 
 # Emacs configuration
-symlink $SRC/emacs/emacs $HOME/.emacs
-symlink $SRC/emacs/emacs.d $HOME/.emacs.d
+copy_file $SRC/emacs/emacs $HOME/.emacs
+copy_file $SRC/emacs/emacs.d $HOME/.emacs.d
 
 # Claude configuration
-symlink $SRC/claude/settings.json $HOME/.claude/settings.json
-symlink $SRC/claude/commands $HOME/.claude/commands
-symlink $SRC/claude/scripts $HOME/.claude/scripts
+copy_file $SRC/claude/settings.json $HOME/.claude/settings.json
+copy_file $SRC/claude/commands $HOME/.claude/commands
+copy_file $SRC/claude/scripts $HOME/.claude/scripts

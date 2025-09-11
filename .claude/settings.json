@@ -1,1 +1,19 @@
-/Users/shane/src/dotfiles/claude/settings.json
+{
+  "model": "opus",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run --no-project ~/.claude/scripts/notify.py"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "uv run --no-project ~/.claude/scripts/statusline.py"
+  }
+}

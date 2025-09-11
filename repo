@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-symlink() {
+copy_file() {
     local SOURCE="$1"
     local TARGET="$2"
 
@@ -12,8 +12,8 @@ symlink() {
         rm -rf $TARGET
     fi
 
-    echo "Linking $SOURCE -> $TARGET"
-    ln -sf $SOURCE $TARGET
+    echo "Copying $SOURCE -> $TARGET"
+    cp -r $SOURCE $TARGET
 }
 
 SOURCE="$HOME/src/dotfiles"
@@ -21,6 +21,6 @@ REPO="."
 
 # Claude configuration
 mkdir -p $REPO/.claude
-symlink $SOURCE/claude/settings.json $REPO/.claude/settings.json
-symlink $SOURCE/claude/commands $REPO/.claude/commands
-symlink $SOURCE/claude/scripts $REPO/.claude/scripts
+copy_file $SOURCE/claude/settings.json $REPO/.claude/settings.json
+copy_file $SOURCE/claude/commands $REPO/.claude/commands
+copy_file $SOURCE/claude/scripts $REPO/.claude/scripts
