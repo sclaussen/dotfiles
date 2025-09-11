@@ -202,6 +202,13 @@
 
 
 ;;=============================================================================
+;; Shell Script Mode Configuration
+;;=============================================================================
+;; Associate files named "zshrc" with shell script mode for syntax highlighting
+(add-to-list 'auto-mode-alist '("zshrc\\'" . sh-mode))
+
+
+;;=============================================================================
 ;; Text Mode Configuration
 ;;=============================================================================
 (defun my-text-mode-setup ()

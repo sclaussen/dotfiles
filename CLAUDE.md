@@ -1,0 +1,1 @@
+- remember when editing the zshrc file that it needs to support both debian and apple os

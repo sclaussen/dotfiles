@@ -65,6 +65,7 @@ function colors() {                                                             
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Python configuration
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+export PATH=".:$PATH"                                                                # Add current directory to PATH
 export PATH="$HOME/.pyenv/shims:$PATH"                                               # Allows pyenv python to take priority over system python
 export PATH="~/.local/bin:$PATH"                                                     # For pipx
 alias p='python3'
@@ -327,65 +328,37 @@ if [[ $IS_MACOS == true ]]; then
 fi
 
 precmd() {
-    # Get dynamic user and hostname
+    # Get current user
     local current_user=$(id -un)
-    local current_host=$(hostname -s)
+    
+    # Colors matching Claude Code statusline exactly
+    local branch_color='%F{10}'     # Bright green for branch (matches \033[92m)
+    local username_color='%F{14}'   # Bright cyan for username  
+    local gold='%F{220}'            # Gold for directory path (matches \033[38;2;255;215;0m)
+    local reset='%f'                # Reset color
 
-    # Define color variables based on OS and theme
-    if [[ $IS_MACOS == true ]]; then
-        # Detect light/dark mode on macOS
-        local auto=$(defaults read -g AppleInterfaceStyleSwitchesAutomatically 2>/dev/null)
-        local mode=$(defaults read -g AppleInterfaceStyle 2>/dev/null)
+    # Git branch information
+    local git_info=""
+    local branch_name
+    branch_name=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
 
-        if { [[ "$auto" == "1" && -z "$mode" ]] || [[ "$mode" == "Dark" ]]; }; then
-            # Dark mode colors
-            local bracket='%F{white}'
-            local username='%F{172}'  # Orange
-            local at='%F{white}'
-            local hostname='%F{172}'  # Orange
-            local branch_color='%F{cyan}'
-            local venv_color='%F{cyan}'
-            local path_color='%F{231}'  # Bright white
+    if [[ -n "$branch_name" ]]; then
+        if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+            git_info="${branch_color}[${branch_name}*]${reset} "
         else
-            # Light mode colors
-            local bracket='%F{240}'     # Dark gray
-            local username='%F{166}'    # Dark orange
-            local at='%F{240}'          # Dark gray
-            local hostname='%F{166}'    # Dark orange
-            local branch_color='%F{25}' # Dark blue
-            local venv_color='%F{25}'   # Dark blue
-            local path_color='%F{0}'    # Black
+            git_info="${branch_color}[${branch_name}]${reset} "
         fi
+    fi
+
+    # Custom path display - show full $HOME path when in home, ~/path otherwise
+    local display_path
+    if [[ "$PWD" == "$HOME" ]]; then
+        display_path="$HOME"
     else
-        # Default colors for Linux/Debian
-        local bracket='%F{240}'     # Dark gray
-        local username='%F{166}'    # Dark orange
-        local at='%F{240}'          # Dark gray
-        local hostname='%F{166}'    # Dark orange
-        local branch_color='%F{25}' # Dark blue
-        local venv_color='%F{25}'   # Dark blue
-        local path_color='%F{0}'    # Black
+        display_path="%~"
     fi
-    local reset='%f' # Resets color
-
-    # Git Branch Information
-    local branch
-    local name
-    name=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
-    [[ -n "$name" ]] && {
-        branch=" (git: ${branch_color}${name}${reset})"
-    }
-
-    # Python Virtual Environment Information
-    local venv
-    if [[ -n "$VIRTUAL_ENV" ]]; then
-        venv_name=$(basename "$VIRTUAL_ENV") # Extract the name of the virtualenv (assuming it's the directory name)
-        venv=" (venv: ${venv_color}${venv_name}${reset})"
-    fi
-
-    # Construct the Prompt with dynamic user and hostname
-    PROMPT="${bracket}[${username}${current_user}${at}@${hostname}${current_host}${bracket}]${branch}${venv}${path_color} %~ >
-$ "
+    
+    PROMPT="${git_info}${username_color}${current_user}${reset} ${gold}${display_path} \$${reset} "
 }
 
 # This is a ZSHRC hook that runs after the directory is changed

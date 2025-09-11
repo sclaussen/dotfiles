@@ -5,7 +5,7 @@ symlink() {
     local TARGET="$2"
 
     # Create parent directory if it doesn't exist
-    mkdir -p "$(dirname "TARGET")"
+    mkdir -p "$(dirname "$TARGET")"
 
     # Remove existing file/symlink if it exists
     if [ -e "$TARGET" ] || [ -L "$TARGET" ]; then

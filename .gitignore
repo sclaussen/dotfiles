@@ -1,3 +1,67 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Emacs
+*~
+\#*\#
+.\#*
+.emacs.desktop
+.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+emacs/emacs.d/elpa/
+emacs/emacs.d/auto-save-list/
+emacs/emacs.d/backups/
+emacs/emacs.d/url/
+emacs/emacs.d/eshell/
+emacs/emacs.d/games/
+emacs/emacs.d/tutorial/
+emacs/emacs.d/.last-package-update-day
+emacs/emacs.d/transient/
+emacs/emacs.d/var/
 emacs/initial-buffers.txt
 emacs/elpa
 emacs/custom-vars.el
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Shell
+.bash_history
+.zsh_history
+
+# Claude
+.last_pull
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.env
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Local configuration that shouldn't be shared
+*local*
+*private*

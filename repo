@@ -1,9 +1,26 @@
 #!/usr/bin/env bash
+
+symlink() {
+    local SOURCE="$1"
+    local TARGET="$2"
+
+    # Create parent directory if it doesn't exist
+    mkdir -p "$(dirname "$TARGET")"
+
+    # Remove existing file/symlink if it exists
+    if [ -e "$TARGET" ] || [ -L "$TARGET" ]; then
+        rm -rf $TARGET
+    fi
+
+    echo "Linking $SOURCE -> $TARGET"
+    ln -sf $SOURCE $TARGET
+}
+
 SOURCE="$HOME/src/dotfiles"
 REPO="."
 
 # Claude configuration
 mkdir -p $REPO/.claude
-cp $SOURCE/claude/settings.json $REPO/.claude/settings.json
-cp -r $SOURCE/claude/commands $REPO/.claude/commands
-cp -r $SOURCE/claude/scripts $REPO/.claude/scripts
+symlink $SOURCE/claude/settings.json $REPO/.claude/settings.json
+symlink $SOURCE/claude/commands $REPO/.claude/commands
+symlink $SOURCE/claude/scripts $REPO/.claude/scripts
