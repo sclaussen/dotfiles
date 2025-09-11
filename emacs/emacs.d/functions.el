@@ -23,13 +23,13 @@
 (defun find-files (&optional initial-buffers-file)
   "Load multiple files into Emacs buffers as specified in INITIAL-BUFFERS-FILE.
 
-INITIAL-BUFFERS-FILE defaults to '~/.emacs.d/initial-buffers.txt'.
+INITIAL-BUFFERS-FILE defaults to '~/.initial-buffers.txt'.
 
 eEach line in INITIAL-BUFFERS-FILE should contain the full path to a file.
 Files are loaded into buffers without switching to them.
 
 This function is non-interactive and can be called programmatically."
-  (let ((default-file (expand-file-name "~/.emacs.d/initial-buffers.txt"))
+  (let ((default-file (expand-file-name "~/.initial-buffers.txt"))
         (file-list '())
         (loaded-files 0)
         (skipped-files 0)
