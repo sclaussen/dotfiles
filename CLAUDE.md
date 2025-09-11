@@ -1,4 +1,5 @@
 - remember when editing the zshrc file that it needs to support both debian and apple os
+- IMPORTANT: Never edit files in the .claude/ directory directly. Always edit files in dotfiles/claude/ first, then run ./home and ./repo to deploy them
 - Make sure the fix is first in dotfiles/claude, then I will run ./home and ./repo to install those, don't make changes directly to .claude/ dir
 
 # Claude Notification System

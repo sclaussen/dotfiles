@@ -1,0 +1,82 @@
+{
+  "name": "Dotfiles Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    // Claude Code CLI feature
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {},
+    // uv - Fast Python package manager
+    "ghcr.io/va-h/devcontainers-features/uv:1": {
+      "version": "latest",
+      "shellautocompletion": true
+    }
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally
+  "forwardPorts": [9559],
+
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "editorconfig.editorconfig",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  },
+
+  // Use 'postCreateCommand' to run commands after the container is created
+  // This runs only once when the container is created
+  "postCreateCommand": "pip install --upgrade pip && if [ -f requirements.txt ]; then pip install -r requirements.txt; fi && sudo ln -sf /workspaces/dotfiles/scripts/xdg-open /usr/local/bin/xdg-open 2>/dev/null || true",
+  
+  // Use 'postStartCommand' to run commands every time the container starts
+  // This ensures your environment is set up correctly without rebuilding
+  "postStartCommand": "echo 'Container started with custom zsh and Claude configuration'",
+
+  // Mount your dotfiles into the container
+  "mounts": [
+    // SSH and git configuration
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+    
+    // Zsh configuration and prompt from your home directory
+    "source=${localEnv:HOME}/.zshrc,target=/home/vscode/.zshrc,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.zsh_history,target=/home/vscode/.zsh_history,type=bind,consistency=cached",
+    
+    // Claude state file from your home directory (not the .claude folder which is in the repo)
+    "source=${localEnv:HOME}/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached"
+    
+    // Note: .claude directory in the repo will be automatically mounted as part of the workspace
+    // Note: zsh/zshrc from the repo is also automatically available at /workspaces/dotfiles/zsh/zshrc
+  ],
+
+  // Run as non-root user
+  "remoteUser": "vscode",
+
+  // Uncomment to connect as root instead
+  // "remoteUser": "root"
+  
+  // Environment variables
+  "remoteEnv": {
+    "SHELL": "/bin/zsh",
+    // Disable browser opening - just show URL
+    "BROWSER": "echo"
+  }
+}

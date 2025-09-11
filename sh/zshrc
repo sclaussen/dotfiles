@@ -397,3 +397,31 @@ alias devrm='devcontainer stop --workspace-folder . && docker container prune -f
 alias devrmall='docker stop $(docker ps -aq) && docker container prune -f && docker image prune -f'
 alias devsh='devcontainer exec --workspace-folder . zsh'
 devexec() { devcontainer exec --workspace-folder . "$@"; }
+
+# Simplified dev command
+dev() {
+    case "$1" in
+        up)
+            devcontainer up --workspace-folder .
+            ;;
+        rm|down|stop)
+            # Stop container using docker directly since devcontainer CLI lacks stop/rm commands
+            docker stop $(docker ps -q --filter label=devcontainer.local_folder=$(pwd)) 2>/dev/null
+            docker rm $(docker ps -aq --filter label=devcontainer.local_folder=$(pwd)) 2>/dev/null
+            ;;
+        exec)
+            shift
+            devcontainer exec --workspace-folder . "$@"
+            ;;
+        sh|shell)
+            devcontainer exec --workspace-folder . zsh
+            ;;
+        *)
+            echo "Usage: dev [up|rm|exec|sh]"
+            echo "  up    - Start the dev container"
+            echo "  rm    - Stop and remove the dev container"  
+            echo "  exec  - Execute a command in the container"
+            echo "  sh    - Open a shell in the container"
+            ;;
+    esac
+}
