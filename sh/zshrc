@@ -68,6 +68,7 @@ function colors() {                                                             
 export PATH=".:$PATH"                                                                # Add current directory to PATH
 export PATH="$HOME/.pyenv/shims:$PATH"                                               # Allows pyenv python to take priority over system python
 export PATH="~/.local/bin:$PATH"                                                     # For pipx
+export PATH="$HOME/.rd/bin:$PATH"                                                    # Add rd bin directory to PATH
 alias p='python3'
 alias p3='python3'
 # poetry completions zsh > ~/.zfunc/_poetry
