@@ -398,8 +398,9 @@ alias devrmall='docker stop $(docker ps -aq) && docker container prune -f && doc
 alias devsh='devcontainer exec --workspace-folder . zsh'
 devexec() { devcontainer exec --workspace-folder . "$@"; }
 
-# Simplified dev command
-dev() {
+# Simplified dv command for devcontainer operations
+unalias dv 2>/dev/null
+dv() {
     case "$1" in
         up)
             devcontainer up --workspace-folder .
@@ -417,11 +418,14 @@ dev() {
             devcontainer exec --workspace-folder . zsh
             ;;
         *)
-            echo "Usage: dev [up|rm|exec|sh]"
+            echo "Usage: dv [up|rm|exec|sh]"
             echo "  up    - Start the dev container"
-            echo "  rm    - Stop and remove the dev container"  
+            echo "  rm    - Stop and remove the dev container"
             echo "  exec  - Execute a command in the container"
             echo "  sh    - Open a shell in the container"
             ;;
     esac
 }
+
+# Alias for dev.js script
+alias dev='~/src/dev/dev.js'

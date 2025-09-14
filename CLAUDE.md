@@ -2,6 +2,14 @@
 - IMPORTANT: Never edit files in the .claude/ directory directly. Always edit files in dotfiles/claude/ first, then run ./home and ./repo to deploy them
 - Make sure the fix is first in dotfiles/claude, then I will run ./home and ./repo to install those, don't make changes directly to .claude/ dir
 
+## Deployment Scripts
+
+- **./home** - Copies dotfiles to home directory (zshrc, emacs, claude, devcontainer configs)
+- **./repo** - Copies configuration files to current repository
+  - `./repo` - Install both Claude and devcontainer configurations
+  - `./repo -c` - Install Claude configuration only (.claude/)
+  - `./repo -d` - Install devcontainer configuration only (.devcontainer/)
+
 # Claude Notification System
 
 The notification system consists of multiple components that work together:

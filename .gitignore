@@ -43,6 +43,9 @@ emacs/custom-vars.el
 # Claude
 .last_pull
 
+# Archive directory
+.archive
+
 # Python
 __pycache__/
 *.py[cod]

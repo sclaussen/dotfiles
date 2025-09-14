@@ -16,7 +16,19 @@ copy_file() {
     cp -r $SOURCE $TARGET
 }
 
-SRC="$HOME/src/dotfiles"
+copy_dir_contents() {
+    local SOURCE="$1"
+    local TARGET="$2"
+
+    # Create target directory if it doesn't exist
+    mkdir -p "$TARGET"
+
+    echo "Copying contents of $SOURCE -> $TARGET"
+    cp -r $SOURCE/* $TARGET/
+}
+
+# Get the directory where this script is located
+SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Shell configuration
 copy_file $SRC/sh/zshrc $HOME/.zshrc
@@ -26,6 +38,25 @@ copy_file $SRC/emacs/emacs $HOME/.emacs
 copy_file $SRC/emacs/emacs.d $HOME/.emacs.d
 
 # Claude configuration
+# Archive existing settings.json before overwriting
+if [ -f "$HOME/.claude/settings.json" ]; then
+    mkdir -p $HOME/.archive
+    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+    cp $HOME/.claude/settings.json $HOME/.archive/settings.json.$TIMESTAMP
+    echo "Archived existing settings.json to $HOME/.archive/settings.json.$TIMESTAMP"
+fi
 copy_file $SRC/claude/settings.json $HOME/.claude/settings.json
-copy_file $SRC/claude/commands $HOME/.claude/commands
-copy_file $SRC/claude/scripts $HOME/.claude/scripts
+copy_dir_contents $SRC/claude/commands $HOME/.claude/commands
+copy_dir_contents $SRC/claude/scripts $HOME/.claude/scripts
+
+# Devcontainer configuration
+mkdir -p $HOME/.devcontainer
+
+# Archive existing devcontainer.json before overwriting
+if [ -f "$HOME/.devcontainer/devcontainer.json" ]; then
+    mkdir -p $HOME/.archive
+    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+    cp $HOME/.devcontainer/devcontainer.json $HOME/.archive/devcontainer.json.$TIMESTAMP
+    echo "Archived existing devcontainer.json to $HOME/.archive/devcontainer.json.$TIMESTAMP"
+fi
+copy_file $SRC/devcontainer/devcontainer.json $HOME/.devcontainer/devcontainer.json

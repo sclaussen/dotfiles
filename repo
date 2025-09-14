@@ -16,11 +16,99 @@ copy_file() {
     cp -r $SOURCE $TARGET
 }
 
-SOURCE="$HOME/src/dotfiles"
+copy_dir_contents() {
+    local SOURCE="$1"
+    local TARGET="$2"
+
+    # Create target directory if it doesn't exist
+    mkdir -p "$TARGET"
+
+    echo "Copying contents of $SOURCE -> $TARGET"
+    cp -r $SOURCE/* $TARGET/
+}
+
+setup_claude() {
+    # Claude configuration
+    mkdir -p $REPO/.claude
+
+    # Archive existing settings.json before overwriting
+    if [ -f "$REPO/.claude/settings.json" ]; then
+        mkdir -p $REPO/.archive
+        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+        cp $REPO/.claude/settings.json $REPO/.archive/settings.json.$TIMESTAMP
+        echo "Archived existing settings.json to $REPO/.archive/settings.json.$TIMESTAMP"
+    fi
+    copy_file $SOURCE/claude/settings.json $REPO/.claude/settings.json
+    copy_dir_contents $SOURCE/claude/commands $REPO/.claude/commands
+    copy_dir_contents $SOURCE/claude/scripts $REPO/.claude/scripts
+}
+
+setup_devcontainer() {
+    # Devcontainer configuration
+    mkdir -p $REPO/.devcontainer
+
+    # Archive existing devcontainer.json before overwriting
+    if [ -f "$REPO/.devcontainer/devcontainer.json" ]; then
+        mkdir -p $REPO/.archive
+        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+        cp $REPO/.devcontainer/devcontainer.json $REPO/.archive/devcontainer.json.$TIMESTAMP
+        echo "Archived existing devcontainer.json to $REPO/.archive/devcontainer.json.$TIMESTAMP"
+    fi
+    copy_file $SOURCE/devcontainer/devcontainer.json $REPO/.devcontainer/devcontainer.json
+}
+
+# Get the directory where this script is located
+SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="."
 
-# Claude configuration
-mkdir -p $REPO/.claude
-copy_file $SOURCE/claude/settings.json $REPO/.claude/settings.json
-copy_file $SOURCE/claude/commands $REPO/.claude/commands
-copy_file $SOURCE/claude/scripts $REPO/.claude/scripts
+# Parse command line arguments
+if [ "$#" -eq 0 ]; then
+    # No arguments - run both
+    # Ensure .archive is in .gitignore
+    if [ -f "$REPO/.gitignore" ]; then
+        if ! grep -q "^\.archive$" $REPO/.gitignore; then
+            echo ".archive" >> $REPO/.gitignore
+            echo "Added .archive to .gitignore"
+        fi
+    else
+        echo ".archive" > $REPO/.gitignore
+        echo "Created .gitignore with .archive entry"
+    fi
+
+    setup_claude
+    setup_devcontainer
+elif [ "$1" = "-c" ]; then
+    # Claude only
+    # Ensure .archive is in .gitignore
+    if [ -f "$REPO/.gitignore" ]; then
+        if ! grep -q "^\.archive$" $REPO/.gitignore; then
+            echo ".archive" >> $REPO/.gitignore
+            echo "Added .archive to .gitignore"
+        fi
+    else
+        echo ".archive" > $REPO/.gitignore
+        echo "Created .gitignore with .archive entry"
+    fi
+
+    setup_claude
+elif [ "$1" = "-d" ]; then
+    # Devcontainer only
+    # Ensure .archive is in .gitignore
+    if [ -f "$REPO/.gitignore" ]; then
+        if ! grep -q "^\.archive$" $REPO/.gitignore; then
+            echo ".archive" >> $REPO/.gitignore
+            echo "Added .archive to .gitignore"
+        fi
+    else
+        echo ".archive" > $REPO/.gitignore
+        echo "Created .gitignore with .archive entry"
+    fi
+
+    setup_devcontainer
+else
+    echo "Usage: $0 [-c|-d]"
+    echo "  -c  Install Claude configuration only"
+    echo "  -d  Install devcontainer configuration only"
+    echo "  (no args)  Install both configurations"
+    exit 1
+fi
