@@ -48,9 +48,12 @@ def get_statusline():
             # Not in a git repository or git not available
             pass
 
-        # Format display path (replace home with ~)
+        # Format display path (replace home with ~, show ~/ when in home)
         home = str(Path.home())
-        display_path = current_dir.replace(home, '~', 1)
+        if current_dir == home:
+            display_path = '~/'
+        else:
+            display_path = current_dir.replace(home, '~', 1)
 
         # ANSI color codes - your custom color scheme
         green = '\033[92m'                 # Bright green - using same exact string for both

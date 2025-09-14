@@ -3,16 +3,29 @@
 copy_file() {
     local SOURCE="$1"
     local TARGET="$2"
+    local ARCHIVE_MSG=""
 
     # Create parent directory if it doesn't exist
     mkdir -p "$(dirname "$TARGET")"
+
+    # Archive existing file if it exists and is a regular file
+    if [ -f "$TARGET" ]; then
+        mkdir -p $REPO/.archive
+        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+        ARCHIVE_FILE="$REPO/.archive/$(basename $TARGET).$TIMESTAMP"
+        cp "$TARGET" "$ARCHIVE_FILE"
+        ARCHIVE_MSG=" (archived to .archive/$(basename $TARGET).$TIMESTAMP)"
+    fi
 
     # Remove existing file/symlink if it exists
     if [ -e "$TARGET" ] || [ -L "$TARGET" ]; then
         rm -rf $TARGET
     fi
 
-    echo "Copying $SOURCE -> $TARGET"
+    # Make paths relative to current directory
+    local REL_TARGET="${TARGET#./}"
+    local REL_SOURCE="${SOURCE/$HOME/~}"
+    echo "$REL_TARGET: $REL_SOURCE$ARCHIVE_MSG"
     cp -r $SOURCE $TARGET
 }
 
@@ -23,21 +36,16 @@ copy_dir_contents() {
     # Create target directory if it doesn't exist
     mkdir -p "$TARGET"
 
-    echo "Copying contents of $SOURCE -> $TARGET"
+    # Make paths relative to current directory
+    local REL_TARGET="${TARGET#./}"
+    local REL_SOURCE="${SOURCE/$HOME/~}"
+    echo "$REL_TARGET/*: $REL_SOURCE/*"
     cp -r $SOURCE/* $TARGET/
 }
 
 setup_claude() {
     # Claude configuration
     mkdir -p $REPO/.claude
-
-    # Archive existing settings.json before overwriting
-    if [ -f "$REPO/.claude/settings.json" ]; then
-        mkdir -p $REPO/.archive
-        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-        cp $REPO/.claude/settings.json $REPO/.archive/settings.json.$TIMESTAMP
-        echo "Archived existing settings.json to $REPO/.archive/settings.json.$TIMESTAMP"
-    fi
     copy_file $SOURCE/claude/settings.json $REPO/.claude/settings.json
     copy_dir_contents $SOURCE/claude/commands $REPO/.claude/commands
     copy_dir_contents $SOURCE/claude/scripts $REPO/.claude/scripts
@@ -46,14 +54,6 @@ setup_claude() {
 setup_devcontainer() {
     # Devcontainer configuration
     mkdir -p $REPO/.devcontainer
-
-    # Archive existing devcontainer.json before overwriting
-    if [ -f "$REPO/.devcontainer/devcontainer.json" ]; then
-        mkdir -p $REPO/.archive
-        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-        cp $REPO/.devcontainer/devcontainer.json $REPO/.archive/devcontainer.json.$TIMESTAMP
-        echo "Archived existing devcontainer.json to $REPO/.archive/devcontainer.json.$TIMESTAMP"
-    fi
     copy_file $SOURCE/devcontainer/devcontainer.json $REPO/.devcontainer/devcontainer.json
 }
 
@@ -68,11 +68,11 @@ if [ "$#" -eq 0 ]; then
     if [ -f "$REPO/.gitignore" ]; then
         if ! grep -q "^\.archive$" $REPO/.gitignore; then
             echo ".archive" >> $REPO/.gitignore
-            echo "Added .archive to .gitignore"
+            echo ".gitignore: Added .archive"
         fi
     else
         echo ".archive" > $REPO/.gitignore
-        echo "Created .gitignore with .archive entry"
+        echo ".gitignore: Created with .archive"
     fi
 
     setup_claude
@@ -83,11 +83,11 @@ elif [ "$1" = "-c" ]; then
     if [ -f "$REPO/.gitignore" ]; then
         if ! grep -q "^\.archive$" $REPO/.gitignore; then
             echo ".archive" >> $REPO/.gitignore
-            echo "Added .archive to .gitignore"
+            echo ".gitignore: Added .archive"
         fi
     else
         echo ".archive" > $REPO/.gitignore
-        echo "Created .gitignore with .archive entry"
+        echo ".gitignore: Created with .archive"
     fi
 
     setup_claude
@@ -97,11 +97,11 @@ elif [ "$1" = "-d" ]; then
     if [ -f "$REPO/.gitignore" ]; then
         if ! grep -q "^\.archive$" $REPO/.gitignore; then
             echo ".archive" >> $REPO/.gitignore
-            echo "Added .archive to .gitignore"
+            echo ".gitignore: Added .archive"
         fi
     else
         echo ".archive" > $REPO/.gitignore
-        echo "Created .gitignore with .archive entry"
+        echo ".gitignore: Created with .archive"
     fi
 
     setup_devcontainer

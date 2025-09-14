@@ -350,10 +350,10 @@ precmd() {
         fi
     fi
 
-    # Custom path display - show full $HOME path when in home, ~/path otherwise
+    # Custom path display - show ~/ when in home, ~/path otherwise
     local display_path
     if [[ "$PWD" == "$HOME" ]]; then
-        display_path="$HOME"
+        display_path="~/"
     else
         display_path="%~"
     fi
