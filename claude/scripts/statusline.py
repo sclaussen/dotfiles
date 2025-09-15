@@ -14,7 +14,10 @@ def get_statusline():
         current_dir = input_data.get('workspace', {}).get('current_dir', os.getcwd())
 
         # Get username and hostname
-        username = os.getenv('USER', 'user')
+        try:
+            username = subprocess.check_output(['whoami'], text=True).strip()
+        except:
+            username = os.getenv('USER', 'user')
         try:
             hostname = subprocess.check_output(['hostname', '-s'], text=True).strip()
         except:
@@ -87,7 +90,11 @@ def get_statusline():
         electric_cyan = '\033[96m'
         gold = '\033[38;2;255;215;0m'
         reset = '\033[0m'
-        print(f"{reset}{green}[Opus]{reset} {electric_cyan}{os.getenv('USER', 'user')}{reset} {gold}{os.getcwd()}{reset}")
+        try:
+            username = subprocess.check_output(['whoami'], text=True).strip()
+        except:
+            username = os.getenv('USER', 'user')
+        print(f"{reset}{green}[Opus]{reset} {electric_cyan}{username}{reset} {gold}{os.getcwd()}{reset}")
 
 if __name__ == "__main__":
     get_statusline()
