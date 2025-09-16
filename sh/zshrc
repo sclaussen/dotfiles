@@ -10,6 +10,37 @@ else
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Locale Configuration (important for Debian containers)
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [[ $IS_DEBIAN == true ]]; then
+    export LANG='en_US.UTF-8'
+    export LANGUAGE='en_US:en'
+    export LC_ALL='en_US.UTF-8'
+    [ -z "$TERM" ] && export TERM=xterm
+fi
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# FZF Configuration (Command-line fuzzy finder - works standalone without Oh-My-Zsh)
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [[ $IS_DEBIAN == true ]]; then
+    # Debian-specific FZF configuration
+    [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]] && source /usr/share/doc/fzf/examples/key-bindings.zsh
+    [[ -f /usr/share/doc/fzf/examples/completion.zsh ]] && source /usr/share/doc/fzf/examples/completion.zsh
+fi
+if [[ $IS_MACOS == true ]]; then
+    # macOS-specific FZF configuration (if installed via Homebrew)
+    [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+fi
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Command History Configuration (useful for containers)
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+if [[ $IS_DEBIAN == true ]] && [[ -d /commandhistory ]]; then
+    export PROMPT_COMMAND='history -a'
+    export HISTFILE=/commandhistory/.bash_history
+fi
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Z Shell Options
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export ENABLE_CORRECTION="true"                                                      # Enable spell correction for mistyped commands and paths. When set to "true", Zsh will attempt to correct minor spelling errors.
@@ -72,8 +103,13 @@ function colors() {                                                             
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export PATH=".:$PATH"                                                                # Add current directory to PATH
 export PATH="$HOME/.pyenv/shims:$PATH"                                               # Allows pyenv python to take priority over system python
-export PATH="~/.local/bin:$PATH"                                                     # For pipx
+export PATH="$HOME/.local/bin:$PATH"                                                 # For pipx and local binaries
 export PATH="$HOME/.rd/bin:$PATH"                                                    # Add rd bin directory to PATH
+# Debian-specific local bin paths
+if [[ $IS_DEBIAN == true ]]; then
+    [[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
+    [[ -f "$HOME/.local/bin/env.sh" ]] && source "$HOME/.local/bin/env.sh"
+fi
 alias p='python3'
 alias p3='python3'
 # poetry completions zsh > ~/.zfunc/_poetry

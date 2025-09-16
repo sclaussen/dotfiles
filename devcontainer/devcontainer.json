@@ -3,11 +3,12 @@
     "image": "artifactory.guidewire.com/ai-coding/claude-code:latest",
     "mounts": [
         "source=${localEnv:HOME}/.m2,target=/home/node/.m2,type=bind,consistency=cached",
-        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,readonly",
         "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,readonly",
+        "source=${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.claude.json,target=/home/node/.claude.json,type=bind,consistency=cached",
         "source=${localEnv:HOME}/.zshrc,target=/home/node/.zshrc,type=bind,readonly",
         "source=${localEnv:HOME}/.zsh_history,target=/home/node/.zsh_history,type=bind,consistency=cached",
-        "source=${localEnv:HOME}/.config/claude/config.json,target=/home/node/.config/claude/config.json,type=bind,consistency=cached"
+        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,readonly",
     ],
     "customizations": {
         "vscode": {
@@ -28,7 +29,6 @@
                         "path": "/bin/zsh"
                     }
                 },
-                "python.defaultInterpreterPath": "/usr/local/bin/python"
             }
         },
         "jetbrains": {
@@ -65,9 +65,12 @@
         "CCA_CLIENT_ID": "${localEnv:CCA_CLIENT_ID}",
         "CCA_CLIENT_SECRET": "${localEnv:CCA_CLIENT_SECRET}"
     },
+    "features": {
+        "ghcr.io/va-h/devcontainers-features/uv:1": {}
+    },
     "initializeCommand": [
         "bash", "-c",
-        "mkdir -p ~/.m2 ~/.ssh ~/.config/claude && touch ~/.gitconfig ~/.zshrc ~/.zsh_history ~/.config/claude/config.json"
+        "mkdir -p ~/.m2 ~/.ssh ~/.claude && touch ~/.gitconfig ~/.zshrc ~/.zsh_history ~/.claude.json"
     ],
     "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && echo 'GW CC AI: Claude Code development container ready (latest)!'",
     "remoteUser": "node"
