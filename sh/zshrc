@@ -372,10 +372,10 @@ fi
 precmd() {
     # Get current user
     local current_user=$(id -un)
-    
+
     # Colors matching Claude Code statusline exactly
     local branch_color='%F{10}'     # Bright green for branch (matches \033[92m)
-    local username_color='%F{14}'   # Bright cyan for username  
+    local username_color='%F{14}'   # Bright cyan for username
     local gold='%F{220}'            # Gold for directory path (matches \033[38;2;255;215;0m)
     local reset='%f'                # Reset color
 
@@ -399,7 +399,7 @@ precmd() {
     else
         display_path="%~"
     fi
-    
+
     PROMPT="${git_info}${username_color}${current_user}${reset} ${gold}${display_path} \$${reset} "
 }
 
@@ -418,7 +418,7 @@ function chpwd() {
 export PATH="$(npm bin -g):$PATH"
 
 # Added by Windsurf
-export PATH="~/.codeium/windsurf/bin:$PATH"
+# export PATH="~/.codeium/windsurf/bin:$PATH"
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
