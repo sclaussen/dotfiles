@@ -13,6 +13,9 @@ def get_statusline():
         input_data = json.loads(sys.stdin.read())
         current_dir = input_data.get('workspace', {}).get('current_dir', os.getcwd())
 
+        # Get current model name
+        model_name = input_data.get('model', {}).get('display_name', 'Claude')
+
         # Get username and hostname
         try:
             username = subprocess.check_output(['whoami'], text=True).strip()
@@ -77,10 +80,10 @@ def get_statusline():
             except:
                 git_info = f"{green}[{branch_name}*]{reset} "
 
-        # Build statusline: [Opus] [branch*] user:~/path
+        # Build statusline: [Model] [branch*] user:~/path
         # Force both to use the exact same color string
         # Add reset at beginning to fix Claude Code shading bug
-        statusline = f"{reset}{green}[Opus]{reset} {git_info}{electric_cyan}{username}{reset} {gold}{display_path}{reset}"
+        statusline = f"{reset}{green}[{model_name}]{reset} {git_info}{electric_cyan}{username}{reset} {gold}{display_path}{reset}"
 
         print(statusline)
 
@@ -94,7 +97,7 @@ def get_statusline():
             username = subprocess.check_output(['whoami'], text=True).strip()
         except:
             username = os.getenv('USER', 'user')
-        print(f"{reset}{green}[Opus]{reset} {electric_cyan}{username}{reset} {gold}{os.getcwd()}{reset}")
+        print(f"{reset}{green}[Claude]{reset} {electric_cyan}{username}{reset} {gold}{os.getcwd()}{reset}")
 
 if __name__ == "__main__":
     get_statusline()

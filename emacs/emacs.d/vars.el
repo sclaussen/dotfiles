@@ -24,6 +24,13 @@
 
 
 ;;=============================================================================
+;; Auto-revert files when changed externally (e.g., by Claude Code)
+;;=============================================================================
+(global-auto-revert-mode 1)
+(setq auto-revert-interval 1)  ; Check every 1 second
+
+
+;;=============================================================================
 ;; Change search and abbrev expand to be case insensitive
 ;;=============================================================================
 ;; Emacs uses a “smart case” approach where the presence of uppercase

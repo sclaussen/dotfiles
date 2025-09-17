@@ -246,9 +246,9 @@
     (kill-buffer "*scratch*"))
 
 
-(load "~/src/sync/tasks.el")
+;; (load "~/src/sync/tasks.el")
 
 ;; Ensure .tasks files automatically open in task-mode
-(add-to-list 'auto-mode-alist '("\\.tasks\\'" . task-mode-for-tasks-file))
+;; (add-to-list 'auto-mode-alist '("\\.tasks\\'" . task-mode-for-tasks-file))
 
 (message "Welcome!")
