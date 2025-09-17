@@ -2,14 +2,16 @@
 
 ## Deployment Scripts
 
-- **./home** - Copies dotfiles to home directory (zshrc, emacs configs)
+- **./home** - Copies dotfiles to home directory (shell and emacs configurations only)
+  - Copies: zshrc, emacs, emacs.d
   - Output format: `<target>: <source> [(archived to <archive_path>)]`
   - Example: `~/.zshrc: ~/src/dotfiles/sh/zshrc`
   - Automatically archives existing files to ~/.archive/ before overwriting
+  - Preserves ~/.emacs.d/elpa directory when updating emacs configuration
 
 ## Configuration Installation
 
-Claude and devcontainer configurations have been moved to the `dev` tool. To install configurations:
+Claude and devcontainer configurations are handled by the `dev` tool. To install configurations:
 
 ```bash
 # Install both Claude and devcontainer configs to current directory

@@ -41,6 +41,7 @@ copy_emacs_d() {
     local SOURCE="$1"
     local TARGET="$2"
     local ARCHIVE_MSG=""
+    local TEMP_ELPA="/tmp/emacs.d.elpa.$(date +%s).tmp"
 
     # If .emacs.d exists, preserve the elpa directory
     if [ -d "$TARGET" ]; then
@@ -53,7 +54,7 @@ copy_emacs_d() {
 
         # Save elpa directory if it exists
         if [ -d "$TARGET/elpa" ]; then
-            mv "$TARGET/elpa" "$HOME/.emacs.d.elpa.tmp"
+            mv "$TARGET/elpa" "$TEMP_ELPA"
         fi
 
         # Remove the old .emacs.d
@@ -62,7 +63,7 @@ copy_emacs_d() {
 
     # Determine if elpa will be preserved
     local PRESERVED_MSG=""
-    if [ -d "$HOME/.emacs.d.elpa.tmp" ]; then
+    if [ -d "$TEMP_ELPA" ]; then
         PRESERVED_MSG=" (preserved ~/.emacs.d/elpa)"
     fi
 
@@ -72,9 +73,9 @@ copy_emacs_d() {
     cp -r "$SOURCE" "$TARGET"
 
     # Restore elpa directory if it was saved
-    if [ -d "$HOME/.emacs.d.elpa.tmp" ]; then
+    if [ -d "$TEMP_ELPA" ]; then
         rm -rf "$TARGET/elpa" 2>/dev/null  # Remove any elpa from source
-        mv "$HOME/.emacs.d.elpa.tmp" "$TARGET/elpa"
+        mv "$TEMP_ELPA" "$TARGET/elpa"
     fi
 }
 
@@ -88,11 +89,3 @@ copy_file $SRC/sh/zshrc $HOME/.zshrc
 copy_file $SRC/emacs/emacs $HOME/.emacs
 copy_emacs_d $SRC/emacs/emacs.d $HOME/.emacs.d
 
-# Claude configuration
-copy_file $SRC/claude/settings.json $HOME/.claude/settings.json
-copy_dir_contents $SRC/claude/commands $HOME/.claude/commands
-copy_dir_contents $SRC/claude/scripts $HOME/.claude/scripts
-
-# Devcontainer configuration
-mkdir -p $HOME/.devcontainer
-copy_file $SRC/devcontainer/devcontainer.json $HOME/.devcontainer/devcontainer.json
