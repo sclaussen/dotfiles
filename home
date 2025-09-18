@@ -84,6 +84,7 @@ SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Shell configuration
 copy_file $SRC/sh/zshrc $HOME/.zshrc
+copy_file $SRC/sh/zshrc.local $HOME/.zshrc.local
 
 # Emacs configuration
 copy_file $SRC/emacs/emacs $HOME/.emacs
