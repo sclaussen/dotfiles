@@ -1,4 +1,5 @@
 # OS generated files
+.devcontainer
 .DS_Store
 .DS_Store?
 ._*
