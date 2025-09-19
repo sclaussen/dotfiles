@@ -173,7 +173,7 @@ todo()   { find . -type f -name "*.js" ! -path "./node_modules/*" -exec grep -H 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Grep Files for Matching Text
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-g()      { find . | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }                     # Search for a string in all files, excluding node_, .git directories, and files containing 'TAG'
+gf()     { find . | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }                     # Search for a string in all files, excluding node_, .git directories, and files containing 'TAG'
 gjs()    { find . -name '*.js' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }        # Search for a string within JavaScript (*.js) files, excluding node_, .git directories, and files containing 'TAG'
 gts()    { find . -name '*.ts' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }        # Search for a string within TypeScript (*.ts) files, excluding node_, .git directories, and files containing 'TAG'
 gyaml()  { find . -name '*.yaml' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }      # Search for a string within YAML (*.yaml) files, excluding node_, .git directories, and files containing 'TAG'
@@ -281,13 +281,18 @@ precmd() {
     # Git branch information
     local git_info=""
     local branch_name
-    branch_name=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
 
-    if [[ -n "$branch_name" ]]; then
-        if ! git diff-index --quiet HEAD -- 2>/dev/null; then
-            git_info="${branch_color}[${branch_name}*]${reset} "
-        else
-            git_info="${branch_color}[${branch_name}]${reset} "
+    # Check if we're in a git repository and can access it
+    if git rev-parse --git-dir >/dev/null 2>&1; then
+        branch_name=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
+
+        if [[ -n "$branch_name" ]]; then
+            # Check if there are uncommitted changes
+            if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+                git_info="${branch_color}[${branch_name}*]${reset} "
+            else
+                git_info="${branch_color}[${branch_name}]${reset} "
+            fi
         fi
     fi
 
@@ -329,7 +334,6 @@ alias devsh='devcontainer exec --workspace-folder . zsh'
 devexec() { devcontainer exec --workspace-folder . "$@"; }
 
 # Simplified dv command for devcontainer operations
-unalias dv 2>/dev/null
 dv() {
     case "$1" in
         up)
