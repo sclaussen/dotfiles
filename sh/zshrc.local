@@ -30,7 +30,6 @@ fi
 export ENABLE_CORRECTION="true"                                                      # Enable spell correction for mistyped commands and paths. When set to "true", Zsh will attempt to correct minor spelling errors.
 export COMPLETION_WAITING_DOTS="true"                                                # Display animated dots while the shell is processing command completions. This provides visual feedback during potentially long completion operations.
 export HISTSIZE=5000                                                                 # Set the maximum number of events stored in the internal history.
-export HISTFILE=~/.zsh_history                                                       # Define the file where the command history is saved.
 export SAVEHIST=5000                                                                 # Specify the number of history entries to save to the history file.
 export HISTDUP=erase                                                                 # Configure how duplicate history entries are handled. Setting to "erase" removes previous duplicates when a new duplicate is added.
 # Set default editor based on OS
