@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+# repo - Install Claude notification system in current directory
+
+copy_file() {
+    local SOURCE="$1"
+    local TARGET="$2"
+    local ARCHIVE_MSG=""
+
+    # Create parent directory if it doesn't exist
+    mkdir -p "$(dirname "$TARGET")"
+
+    # Archive existing file if it exists and is a regular file
+    if [ -f "$TARGET" ]; then
+        mkdir -p ./.archive
+        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+        ARCHIVE_FILE="./.archive/$(basename $TARGET).$TIMESTAMP"
+        cp "$TARGET" "$ARCHIVE_FILE"
+        ARCHIVE_MSG=" (archived to $ARCHIVE_FILE)"
+    fi
+
+    # Remove existing file/symlink if it exists
+    if [ -e "$TARGET" ] || [ -L "$TARGET" ]; then
+        rm -rf "$TARGET"
+    fi
+
+    echo "$TARGET: $SOURCE$ARCHIVE_MSG"
+    cp "$SOURCE" "$TARGET"
+}
+
+# Get the directory where this script is located
+SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if we're in a directory with .claude already
+if [ ! -d ".claude" ]; then
+    echo "Error: No .claude directory found in current directory."
+    echo "Please run this from a directory with Claude Code configuration."
+    exit 1
+fi
+
+echo "Installing Claude notification system in $(pwd)..."
+
+# Copy notification files
+copy_file "$SRC/templates/claude/scripts/notify.py" ".claude/scripts/notify.py"
+copy_file "$SRC/templates/claude/scripts/notifyUpdate.py" ".claude/scripts/notifyUpdate.py"
+copy_file "$SRC/templates/claude/scripts/notify.yaml" ".claude/scripts/notify.yaml"
+copy_file "$SRC/templates/claude/commands/notify.md" ".claude/commands/notify.md"
+
+# Update settings.json to add the stop hook
+SETTINGS_FILE=".claude/settings.json"
+
+if [ ! -f "$SETTINGS_FILE" ]; then
+    echo "Error: No .claude/settings.json found."
+    exit 1
+fi
+
+# Use Python to safely modify the JSON
+python3 -c "
+import json
+import sys
+
+try:
+    with open('$SETTINGS_FILE', 'r') as f:
+        settings = json.load(f)
+
+    # Initialize hooks structure if it doesn't exist
+    if 'hooks' not in settings:
+        settings['hooks'] = {}
+    if 'Stop' not in settings['hooks']:
+        settings['hooks']['Stop'] = []
+
+    # Check if notification hook already exists
+    notify_hook_exists = False
+    for stop_hook in settings['hooks']['Stop']:
+        if 'hooks' in stop_hook:
+            for hook in stop_hook['hooks']:
+                if 'command' in hook and 'notify.py' in hook['command']:
+                    notify_hook_exists = True
+                    break
+
+    # Add notification hook if it doesn't exist
+    if not notify_hook_exists:
+        settings['hooks']['Stop'].append({
+            'hooks': [
+                {
+                    'type': 'command',
+                    'command': 'uv run --no-project ./.claude/scripts/notify.py'
+                }
+            ]
+        })
+        print('Added notification stop hook to settings.json')
+    else:
+        print('Notification stop hook already exists in settings.json')
+
+    # Write back the updated settings
+    with open('$SETTINGS_FILE', 'w') as f:
+        json.dump(settings, f, indent=2)
+
+except Exception as e:
+    print(f'Error updating settings.json: {e}', file=sys.stderr)
+    sys.exit(1)
+"
+
+echo "✓ Claude notification system installed successfully!"
+echo ""
+echo "Usage:"
+echo "  /notify [option]  - Configure notification sound"
+echo "  /notify           - Show available options"
+echo ""
+echo "The notification will play automatically when Claude finishes work."
