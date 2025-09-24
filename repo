@@ -101,10 +101,4 @@ except Exception as e:
     sys.exit(1)
 "
 
-echo "✓ Claude notification system installed successfully!"
-echo ""
-echo "Usage:"
-echo "  /notify [option]  - Configure notification sound"
-echo "  /notify           - Show available options"
-echo ""
-echo "The notification will play automatically when Claude finishes work."
+# Installation complete
