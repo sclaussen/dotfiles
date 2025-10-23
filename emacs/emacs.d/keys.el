@@ -18,7 +18,7 @@
 (global-set-key (kbd "M-v") 'scroll-up-hard)
 (global-set-key (kbd "C-l") 'recenter)
 (global-set-key (kbd "C-k") 'my-kill-line)
-(global-set-key (kbd "C-w") 'copy-region-as-kill)
+(global-set-key (kbd "C-w") 'my-kill-region)
 ;; (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 ;; (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 
