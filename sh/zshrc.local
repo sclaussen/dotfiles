@@ -196,7 +196,7 @@ gpr() { echo "git pull --rebase --prune"; git pull --rebase --prune; }          
 grc() { echo "git add . && git rebase --continue"; git add . && git rebase --continue; }                           # Continue rebase after adding changes
 gp() { echo "git push origin $(git rev-parse --abbrev-ref HEAD)"; git push origin "$(git rev-parse --abbrev-ref HEAD)"; } # Push to the current branch
 gco() { echo "git checkout -b sc/$1 2>/dev/null || git checkout sc/$1"; git checkout -b sc/"$1" 2>/dev/null || git checkout sc/"$1"; } # Checkout or create a feature branch
-gcom() { echo "git checkout master"; git checkout master; }                                                        # Checkout master branch
+gcom() { echo "git checkout main"; git checkout main; }                                                            # Checkout master branch
 gm() { echo "git pull --rebase --prune && git merge --squash --ff-only sc/$1"; git pull --rebase --prune && git merge --squash --ff-only sc/"$1"; } # Pull and merge a feature branch with squash
 gl() { echo "git log --pretty=format:'%Cblue%h %ad %Cgreen%cn %Creset%s %Cred%d' --decorate --date=short -n 20"; git log --pretty=format:'%Cblue%h %ad %Cgreen%cn %Creset%s %Cred%d' --decorate --date=short -n 20; } # Display formatted git log
 
@@ -331,34 +331,6 @@ alias devrm='devcontainer stop --workspace-folder . && docker container prune -f
 alias devrmall='docker stop $(docker ps -aq) && docker container prune -f && docker image prune -f'
 alias devsh='devcontainer exec --workspace-folder . zsh'
 devexec() { devcontainer exec --workspace-folder . "$@"; }
-
-# Simplified dv command for devcontainer operations
-dv() {
-    case "$1" in
-        up)
-            devcontainer up --workspace-folder .
-            ;;
-        rm|down|stop)
-            # Stop container using docker directly since devcontainer CLI lacks stop/rm commands
-            docker stop $(docker ps -q --filter label=devcontainer.local_folder=$(pwd)) 2>/dev/null
-            docker rm $(docker ps -aq --filter label=devcontainer.local_folder=$(pwd)) 2>/dev/null
-            ;;
-        exec)
-            shift
-            devcontainer exec --workspace-folder . "$@"
-            ;;
-        sh|shell)
-            devcontainer exec --workspace-folder . zsh
-            ;;
-        *)
-            echo "Usage: dv [up|rm|exec|sh]"
-            echo "  up    - Start the dev container"
-            echo "  rm    - Stop and remove the dev container"
-            echo "  exec  - Execute a command in the container"
-            echo "  sh    - Open a shell in the container"
-            ;;
-    esac
-}
 
 # Alias for dev.js script
 alias dev='~/src/dev/dev.js'

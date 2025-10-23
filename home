@@ -90,3 +90,8 @@ copy_file $SRC/sh/zshrc.local $HOME/.zshrc.local
 copy_file $SRC/emacs/emacs $HOME/.emacs
 copy_emacs_d $SRC/emacs/emacs.d $HOME/.emacs.d
 
+# Claude commands and scripts
+copy_file $SRC/templates/claude/commands/summarize.md $HOME/.claude/commands/summarize.md
+mkdir -p $HOME/.claude/scripts
+copy_file $SRC/templates/claude/scripts/summarize.sh $HOME/.claude/scripts/summarize.sh
+
