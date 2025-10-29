@@ -217,7 +217,7 @@
 (defun my-text-mode-setup ()
   "Configure settings specific to `text-mode`."
   (auto-fill-mode 1)                ;; Enable auto-fill-mode explicitly
-  (setq-local fill-column 77))      ;; Set fill-column to 77 in the buffer
+  (setq-local fill-column 120))     ;; Set fill-column to 120 in the buffer
 
 (add-hook 'text-mode-hook #'my-text-mode-setup)
 

@@ -66,10 +66,10 @@ alias tagall="find . -type f | grep -v .git | grep -v node_modules | grep -v .ve
 # export CLAUDE_CODE_SHELL_PREFIX="zsh -ic"
 alias tasks="node ~/src/sync/tasks.js"
 alias dcc="dev cc"
-alias mdw="~/src/dev/mdw/mdw.js"
+alias md="~/src/dev/md/md.js"
 
 # API AI Keys
-if [ -f '~/.env' ]; then . ~/.env; fi
+if [ -f ~/.env ]; then . ~/.env; fi
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # macOS History Configuration

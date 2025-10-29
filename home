@@ -1,5 +1,39 @@
 #!/usr/bin/env bash
 
+# Global archive timestamp - computed once per run
+ARCHIVE_TIMESTAMP=""
+
+# Get archive timestamp with letter suffix if needed
+get_archive_timestamp() {
+    if [ -n "$ARCHIVE_TIMESTAMP" ]; then
+        echo "$ARCHIVE_TIMESTAMP"
+        return
+    fi
+
+    local base_timestamp="$(date +"%Y-%m-%d")"
+    local archive_timestamp="$base_timestamp"
+    local archive_base_dir="$HOME/.archive"
+
+    # Check if archive dir with this timestamp already exists, add letter suffix if needed
+    if [ -d "$archive_base_dir" ]; then
+        local matching_dirs=$(ls -d "$archive_base_dir/$base_timestamp"* 2>/dev/null | wc -l)
+        if [ "$matching_dirs" -gt 0 ]; then
+            # Find the next available suffix (a, b, c, ...)
+            local ref_codes=(a b c d e f g h i j k l m n o p q r s t u v w x y z)
+            for ref in "${ref_codes[@]}"; do
+                local candidate="${base_timestamp}-${ref}"
+                if [ ! -d "$archive_base_dir/$candidate" ]; then
+                    archive_timestamp="$candidate"
+                    break
+                fi
+            done
+        fi
+    fi
+
+    ARCHIVE_TIMESTAMP="$archive_timestamp"
+    echo "$ARCHIVE_TIMESTAMP"
+}
+
 copy_file() {
     local SOURCE="$1"
     local TARGET="$2"
@@ -10,11 +44,13 @@ copy_file() {
 
     # Archive existing file if it exists and is a regular file
     if [ -f "$TARGET" ]; then
-        mkdir -p $HOME/.archive
-        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-        ARCHIVE_FILE="$HOME/.archive/$(basename $TARGET).$TIMESTAMP"
-        cp "$TARGET" "$ARCHIVE_FILE"
-        ARCHIVE_MSG=" (archived to ${ARCHIVE_FILE/$HOME/~})"
+        local timestamp=$(get_archive_timestamp)
+        local archive_dir="$HOME/.archive/$timestamp"
+        mkdir -p "$archive_dir"
+
+        local archive_file="$archive_dir/$(basename $TARGET)"
+        cp "$TARGET" "$archive_file"
+        ARCHIVE_MSG=" (archived to ~/.archive/$timestamp/)"
     fi
 
     # Remove existing file/symlink if it exists
@@ -46,11 +82,13 @@ copy_emacs_d() {
     # If .emacs.d exists, preserve the elpa directory
     if [ -d "$TARGET" ]; then
         # Archive the entire .emacs.d first
-        mkdir -p $HOME/.archive
-        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-        ARCHIVE_FILE="$HOME/.archive/emacs.d.$TIMESTAMP"
-        cp -r "$TARGET" "$ARCHIVE_FILE"
-        ARCHIVE_MSG=" (archived to ${ARCHIVE_FILE/$HOME/~})"
+        local timestamp=$(get_archive_timestamp)
+        local archive_dir="$HOME/.archive/$timestamp"
+        mkdir -p "$archive_dir"
+
+        local archive_file="$archive_dir/emacs.d"
+        cp -r "$TARGET" "$archive_file"
+        ARCHIVE_MSG=" (archived to ~/.archive/$timestamp/)"
 
         # Save elpa directory if it exists
         if [ -d "$TARGET/elpa" ]; then
