@@ -20,6 +20,36 @@ export PATH="/Library/TeX/texbin:$PATH"                                         
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 alias o='open .'                                                                   # Open current directory in Finder
 
+# iTerm2 tab opening with Claude Code
+alias csrc='node ~/src/dev/tools/oiterm.js src ~/src "dev ccc"'
+alias cdevr='node ~/src/dev/tools/oiterm.js devr ~/src/dev "dev ccc"'
+alias cdev='node ~/src/dev/tools/oiterm.js dev ~/src/dev/dev "dev ccc"'
+alias caha='node ~/src/dev/tools/oiterm.js aha ~/src/dev/aha "dev ccc"'
+alias cmd='node ~/src/dev/tools/oiterm.js md ~/src/dev/md "dev ccc"'
+alias ctools='node ~/src/dev/tools/oiterm.js tools ~/src/dev/tools "dev ccc"'
+alias capp='node ~/src/dev/tools/oiterm.js app ~/src/app "dev ccc"'
+alias cplayback='node ~/src/dev/tools/oiterm.js playback ~/src/app/playback "dev ccc"'
+alias cplan='node ~/src/dev/tools/oiterm.js plan ~/src/app/plan "dev ccc"'
+alias cinterapp='node ~/src/dev/tools/oiterm.js interapp ~/src/app/appconsole/interapp "dev ccc"'
+alias cappmgr='node ~/src/dev/tools/oiterm.js appmgr ~/src/app/appmgr "dev ccc"'
+alias codin='node ~/src/dev/tools/oiterm.js odin ~/src/odin "dev ccc"'
+alias cdotfiles='node ~/src/dev/tools/oiterm.js dotfiles "~/src/dotfiles" "dev ccc"'
+
+# iTerm2 tab opening for shell only
+alias zsrc='node ~/src/dev/tools/oiterm.js "~/src" ~/src'
+alias zdevr='node ~/src/dev/tools/oiterm.js "~/src/dev" ~/src/dev'
+alias zdev='node ~/src/dev/tools/oiterm.js "~/src/dev/dev" ~/src/dev/dev'
+alias zaha='node ~/src/dev/tools/oiterm.js "~/src/dev/aha" ~/src/dev/aha'
+alias zmd='node ~/src/dev/tools/oiterm.js "~/src/dev/md" ~/src/dev/md'
+alias ztools='node ~/src/dev/tools/oiterm.js "~/src/dev/tools" ~/src/dev/tools'
+alias zapp='node ~/src/dev/tools/oiterm.js "~/src/app" ~/src/app'
+alias zplayback='node ~/src/dev/tools/oiterm.js "~/src/app/playback" ~/src/app/playback'
+alias zplan='node ~/src/dev/tools/oiterm.js "~/src/app/plan" ~/src/app/plan'
+alias zinterapp='node ~/src/dev/tools/oiterm.js "~/src/.../interapp" ~/src/app/appconsole/interapp'
+alias zappmgr='node ~/src/dev/tools/oiterm.js "~/src/app/appmgr" ~/src/app/appmgr'
+alias zodin='node ~/src/dev/tools/oiterm.js "~/src/odin" ~/src/odin'
+alias zdotfiles='node ~/src/dev/tools/oiterm.js "~/src/dotfiles" ~/src/dotfiles'
+
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # macOS ls configuration
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -75,6 +105,16 @@ if [ -f ~/.env ]; then . ~/.env; fi
 # macOS History Configuration
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export HISTFILE=~/.zsh_history
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Alias for tools
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+alias dev='~/src/dev/dev/dev.js'
+alias md='~/src/dev/md/md.js'
+alias unhib='node ~/src/dev/tools/unhib/unhib.js'
+unhibdemo() {
+  node ~/src/dev/tools/unhib/unhib.js -p dev.xapps.claimsdev.demodev -p dev.xapps.claimsdev.demoqa
+}
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Source cross-platform configuration

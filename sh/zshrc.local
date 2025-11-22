@@ -25,6 +25,29 @@ if [[ $IS_DEBIAN == true ]] && [[ -d /commandhistory ]]; then
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Finding files
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+f()      { find . -type f -name "*$@*" -print | grep -v node_ | grep -v '\.git/' | grep -v '\.md/' | grep -v .archive | grep -v '/.#' }                                 # Find all regular files matching a pattern, excluding node_, .git, and temporary files
+fjs()    { find . -type f -name '*.js' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | grep -v '/.#' }                       # Find all JavaScript (*.js) files, excluding node_modules, .git, and temporary files
+fts()    { find . -type f -name '*.ts' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | grep -v '/.#' }                       # Find all TypeScript (*.ts) files, excluding node_modules, .git, and temporary files
+fmd()    { find . -type f -name '*.md' | grep -v node_ | grep -v .git | grep -v .md | grep -v .archive | grep -v '/.#' }                                              # Find all Markdown (*.md) files, excluding node_, .git, and temporary files
+fyaml()  { find . -type f -name '*.yaml' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | grep -v '/.#' }                     # Find all YAML (*.yaml) files, excluding node_modules, .git, and temporary files
+fswift() { find . -type f -name '*.swift' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | grep -v '/.#' }                    # Find all Swift (*.swift) files, excluding node_modules, .git, and temporary files
+fstart() { find . -type f -name "$@"'*' -print | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | grep -v '/.#' }               # Find files starting with a specific string, excluding node_, .git, and temporary files
+feend()  { find . -type f -name '*'"$@" -print | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | grep -v '/.#' }               # Find files ending with a specific string, excluding node_, .git, and temporary files
+todo()   { find . -type f -name "*.js" ! -path "./node_modules/*" -exec grep -H "TODO:" {} \; | sed "s/: */: /g" }                                                    # Find TODO comments in JavaScript files
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Grep Files for Matching Text
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+g()      { find . -print | grep -v node_ | grep -v .git | grep -v .md | grep -v .archive | xargs grep "$@" 2>/dev/null }                                               # Find all regular files matching a pattern, excluding node_, .git, and temporary files
+gjs()    { find . -type f -name '*.js' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | xargs grep "$@" 2>/dev/null }          # Find all JavaScript (*.js) files, excluding node_modules, .git, and temporary files
+gts()    { find . -type f -name '*.ts' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | xargs grep "$@" 2>/dev/null }          # Find all TypeScript (*.ts) files, excluding node_modules, .git, and temporary files
+gmd()    { find . -type f -name '*.md' | grep -v node_ | grep -v .git | grep -v .md | grep -v .archive | xargs grep "$@" 2>/dev/null }                                 # Find all Markdown (*.md) files, excluding node_, .git, and temporary files
+gyaml()  { find . -type f -name '*.yaml' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | xargs grep "$@" 2>/dev/null }        # Find all YAML (*.yaml) files, excluding node_modules, .git, and temporary files
+gswift() { find . -type f -name '*.swift' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v .md | grep -v .archive | xargs grep "$@" 2>/dev/null }       # Find all Swift (*.swift) files, excluding node_modules, .git, and temporary files
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Z Shell Options
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 export ENABLE_CORRECTION="true"                                                      # Enable spell correction for mistyped commands and paths. When set to "true", Zsh will attempt to correct minor spelling errors.
@@ -102,12 +125,13 @@ export NVM_DIR="$HOME/.nvm"
 
 # Add npm global binaries to PATH (after NVM loads)
 if command -v npm >/dev/null 2>&1; then
-    export PATH="$(npm config get prefix)/bin:$PATH"
+    export PATH="$(npm config get prefix 2>/dev/null)/bin:$PATH"
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # General
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+alias z='. ~/.zshrc'                                                               # Reload zsh configuration in current shell
 alias genpdf='markdown-pdf'                                                        # Convert Markdown to PDF
 alias path='echo -e ${PATH//:/\\n}'                                                # Display each PATH entry on separate lines
 # Tag generation aliases based on OS
@@ -156,27 +180,6 @@ alias dstop='docker stop $(docker ps -a -q)'                                    
 dclean() { echo "Stopping all Docker containers..."; docker stop $(docker ps -a -q); echo "Removing all Docker containers..."; docker rm $(docker ps -a -q) } # Clean up Docker containers
 drun() { echo "Running Docker container: $@"; docker run -d --name "$@"; }         # Run a Docker container in detached mode with a specified name
 dsh() { echo "Accessing shell in Docker container: $@"; docker exec -it "$@" /bin/bash; } # Access a shell inside a Docker container
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Finding files
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-f()      { find . -type f -name "*$@*" -print | grep -v node_ | grep -v .git | grep -v '/.#' }                     # Find all regular files matching a pattern, excluding node_, .git, and temporary files
-fjs()    { find . -name '*.js' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }             # Find all JavaScript (*.js) files, excluding node_modules, .git, and temporary files
-fts()    { find . -name '*.ts' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }             # Find all TypeScript (*.ts) files, excluding node_modules, .git, and temporary files
-fmd()    { find . -name '*.md' | grep -v node_ | grep -v .git | grep -v '/.#' }                                    # Find all Markdown (*.md) files, excluding node_, .git, and temporary files
-fyaml()  { find . -name '*.yaml' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }           # Find all YAML (*.yaml) files, excluding node_modules, .git, and temporary files
-fswift() { find . -name '*.swift' | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }          # Find all Swift (*.swift) files, excluding node_modules, .git, and temporary files
-fs()     { find . -name "$@"'*' -print | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }     # Find files starting with a specific string, excluding node_, .git, and temporary files
-fe()     { find . -name '*'"$@" -print | grep -v node_modules | grep -v .venv | grep -v .git | grep -v '/.#' }     # Find files ending with a specific string, excluding node_, .git, and temporary files
-todo()   { find . -type f -name "*.js" ! -path "./node_modules/*" -exec grep -H "TODO:" {} \; | sed "s/: */: /g" } # Find TODO comments in JavaScript files
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Grep Files for Matching Text
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-gf()     { find . | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }                     # Search for a string in all files, excluding node_, .git directories, and files containing 'TAG'
-gjs()    { find . -name '*.js' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }        # Search for a string within JavaScript (*.js) files, excluding node_, .git directories, and files containing 'TAG'
-gts()    { find . -name '*.ts' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }        # Search for a string within TypeScript (*.ts) files, excluding node_, .git directories, and files containing 'TAG'
-gyaml()  { find . -name '*.yaml' | grep -v node_ | grep -v .git | grep -v TAG | xargs grep "$@" 2>/dev/null }      # Search for a string within YAML (*.yaml) files, excluding node_, .git directories, and files containing 'TAG'
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # YAML and JSON Manipulation Functions Using yq
@@ -323,17 +326,17 @@ function chpwd() {
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Devcontainer CLI Aliases
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-alias devup='devcontainer up --workspace-folder .'
-alias devcc='devcontainer exec --workspace-folder . claude --dangerously-skip-permissions'
-alias devccc='devcontainer exec --workspace-folder . claude --dangerously-skip-permissions -c'
-alias devls='devcontainer list --workspace-folder .'
-alias devlsall='devcontainer list'
-alias devrm='devcontainer stop --workspace-folder . && docker container prune -f'
-alias devrmall='docker stop $(docker ps -aq) && docker container prune -f && docker image prune -f'
-alias devsh='devcontainer exec --workspace-folder . zsh'
-devexec() { devcontainer exec --workspace-folder . "$@"; }
+# alias devup='devcontainer up --workspace-folder .'
+# alias devcc='devcontainer exec --workspace-folder . claude --dangerously-skip-permissions'
+# alias devccc='devcontainer exec --workspace-folder . claude --dangerously-skip-permissions -c'
+# alias devls='devcontainer list --workspace-folder .'
+# alias devlsall='devcontainer list'
+# alias devrm='devcontainer stop --workspace-folder . && docker container prune -f'
+# alias devrmall='docker stop $(docker ps -aq) && docker container prune -f && docker image prune -f'
+# alias devsh='devcontainer exec --workspace-folder . zsh'
+# devexec() { devcontainer exec --workspace-folder . "$@"; }
 
-# Alias for dev.js script
-alias dev='~/src/dev/dev.js'
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Alias for tools
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 alias aha='~/src/dev/aha/aha.js'
-alias md='~/src/dev/md/md.js'
