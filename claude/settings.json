@@ -1,0 +1,6 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "sh -c 'uv run --no-project ~/.claude/scripts/statusline.py'"
+  }
+}
