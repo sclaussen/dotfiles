@@ -10,6 +10,13 @@ else
 fi
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Workspace Configuration
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Set WORKSPACE_ROOT if not already set (containers may override this)
+export WORKSPACE_ROOT="${WORKSPACE_ROOT:-$HOME/src}"
+export DEVPATH="$WORKSPACE_ROOT/dev/dev/ext:$WORKSPACE_ROOT/ext"
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Locale Configuration (important for Debian containers)
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 if [[ $IS_DEBIAN == true ]]; then
@@ -84,7 +91,7 @@ bindkey '^N' down-line-or-beginning-search
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Node.js Configuration
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# export NODE_TLS_REJECT_UNAUTHORIZED=0
+export NODE_TLS_REJECT_UNAUTHORIZED=0
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Custom Functions and Variables
@@ -322,21 +329,3 @@ function chpwd() {
     # Run the virtualenv load/unload logic:
     load_virtualenv
 }
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Devcontainer CLI Aliases
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# alias devup='devcontainer up --workspace-folder .'
-# alias devcc='devcontainer exec --workspace-folder . claude --dangerously-skip-permissions'
-# alias devccc='devcontainer exec --workspace-folder . claude --dangerously-skip-permissions -c'
-# alias devls='devcontainer list --workspace-folder .'
-# alias devlsall='devcontainer list'
-# alias devrm='devcontainer stop --workspace-folder . && docker container prune -f'
-# alias devrmall='docker stop $(docker ps -aq) && docker container prune -f && docker image prune -f'
-# alias devsh='devcontainer exec --workspace-folder . zsh'
-# devexec() { devcontainer exec --workspace-folder . "$@"; }
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Alias for tools
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-alias aha='~/src/dev/aha/aha.js'
