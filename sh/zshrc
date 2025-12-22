@@ -121,6 +121,7 @@ alias tagall="find . -type f | grep -v .git | grep -v node_modules | grep -v .ve
 alias tasks="node ~/src/sync/tasks.js"
 alias dcc="dev cc"
 alias md="~/src/dev/md/md.js"
+alias devx="npx --registry=https://artifactory.guidewire.com/artifactory/api/npm/gwai-npm-dev/ dev"
 
 # API AI Keys
 if [ -f ~/.env ]; then . ~/.env; fi
