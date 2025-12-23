@@ -14,7 +14,6 @@ fi
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Set WORKSPACE_ROOT if not already set (containers may override this)
 export WORKSPACE_ROOT="${WORKSPACE_ROOT:-$HOME/src}"
-export DEVPATH="$WORKSPACE_ROOT/dev/dev/ext:$WORKSPACE_ROOT/ext"
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Locale Configuration (important for Debian containers)

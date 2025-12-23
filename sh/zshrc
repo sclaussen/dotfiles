@@ -14,6 +14,7 @@ export INFOPATH=$INFOPATH:/opt/homebrew/share/info                              
 export PATH="$HOME/.rd/bin:$PATH"                                                    # Add Rancher Desktop bin directory to PATH
 export PATH="$HOME/Library/Python/3.9/bin:$PATH"                                     # Add Python 3.9 user binaries to PATH
 export PATH="/Library/TeX/texbin:$PATH"                                              # Add TeX distribution binaries to PATH
+export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH" # Add VS Code 'code' command to PATH
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Workspace Configuration
