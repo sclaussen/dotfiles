@@ -210,6 +210,60 @@ gco() { echo "git checkout -b sc/$1 2>/dev/null || git checkout sc/$1"; git chec
 gcom() { echo "git checkout main"; git checkout main; }                                                            # Checkout master branch
 gm() { echo "git pull --rebase --prune && git merge --squash --ff-only sc/$1"; git pull --rebase --prune && git merge --squash --ff-only sc/"$1"; } # Pull and merge a feature branch with squash
 gl() { echo "git log --pretty=format:'%Cblue%h %ad %Cgreen%cn %Creset%s %Cred%d' --decorate --date=short -n 20"; git log --pretty=format:'%Cblue%h %ad %Cgreen%cn %Creset%s %Cred%d' --decorate --date=short -n 20; } # Display formatted git log
+gwa() {                                                                                                        # Create git worktree as peer directory
+    if [[ -z "$1" ]]; then
+        echo "Usage: gwa <branch-name>"
+        echo "Example: gwa 45-sdd"
+        return 1
+    fi
+
+    local branch_name="$1"
+
+    # Find git root
+    local git_root
+    git_root=$(git rev-parse --show-toplevel 2>/dev/null)
+
+    if [[ -z "$git_root" ]]; then
+        echo "Error: Not in a git repository"
+        return 1
+    fi
+
+    # Get repo name and parent directory
+    local repo_name=$(basename "$git_root")
+    local parent_dir=$(dirname "$git_root")
+    local worktree_path="${parent_dir}/${repo_name}-${branch_name}"
+
+    # Check if worktree already exists at this path
+    if git worktree list | grep -q "^${worktree_path} "; then
+        local existing_branch=$(git worktree list | grep "^${worktree_path} " | awk '{print $3}' | sed 's/\[//' | sed 's/\]//')
+        if [[ "$existing_branch" == "$branch_name" ]]; then
+            echo "Branch exists: $branch_name"
+            echo "Worktree exists: $worktree_path"
+            return 0
+        else
+            echo "Error: Worktree exists at $worktree_path with different branch: $existing_branch"
+            return 1
+        fi
+    fi
+
+    # Check if branch exists
+    local branch_exists=false
+    if git rev-parse --verify "$branch_name" >/dev/null 2>&1; then
+        branch_exists=true
+        echo "Branch exists: $branch_name"
+    else
+        echo "Created branch: $branch_name"
+    fi
+
+    # Create worktree
+    git worktree add "$worktree_path" "$branch_name" >/dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+        echo "Created worktree: $worktree_path"
+    else
+        echo "Error: Failed to create worktree"
+        return 1
+    fi
+}
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Git Extraneous Functions
