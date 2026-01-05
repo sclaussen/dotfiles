@@ -120,8 +120,8 @@ alias p3='python3'
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Claude Code
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-alias cc='claude --dangerously-skip-permissions'
-alias ccc='claude --dangerously-skip-permissions --continue'
+alias cc='claude --dangerously-skip-permissions --settings /workspaces/src/.claude/settings.json'
+alias ccc='claude --dangerously-skip-permissions --continue --settings /workspaces/src/.claude/settings.json'
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Node Version Manager (NVM)
@@ -265,6 +265,32 @@ gwa() {                                                                         
     fi
 }
 
+wt() {                                                                                                            # List worktree names for current repo
+    # Find repo root by walking up looking for .git directory (no git commands)
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        if [[ -d "$dir/.git" ]]; then
+            break
+        fi
+        dir="${dir:h}"
+    done
+
+    if [[ "$dir" == "/" ]]; then
+        echo "Error: Not in a git repository"
+        return 1
+    fi
+
+    local repo_name="${dir:t}"    # basename via zsh expansion
+    local parent_dir="${dir:h}"   # dirname via zsh expansion
+
+    # List sibling directories matching <repo-name>-* and extract suffix
+    setopt local_options null_glob
+    for path in "${parent_dir}/${repo_name}-"*(/N); do
+        local name="${path:t}"          # basename via zsh expansion
+        echo "${name#${repo_name}-}"    # strip prefix
+    done
+}
+
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Git Extraneous Functions
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -295,7 +321,7 @@ find_virtualenv() {
             echo "$dir/.venv"
             return
         fi
-        dir=$(dirname "$dir")
+        dir="${dir:h}"    # dirname via zsh expansion
     done
     return 1
 }
@@ -333,8 +359,8 @@ load_virtualenv() {
 # Prompt and CD tweaks
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 precmd() {
-    # Get current user
-    local current_user=$(id -un)
+    # Get current user (use zsh variable instead of id command)
+    local current_user="${USER:-${USERNAME:-unknown}}"
 
     # Colors matching Claude Code statusline exactly
     local branch_color='%F{10}'     # Bright green for branch (matches \033[92m)
@@ -374,10 +400,11 @@ precmd() {
 # This is a ZSHRC hook that runs after the directory is changed
 function chpwd() {
     # By default list files when we change directories (OS-specific)
+    # Use full path to avoid PATH issues in hook context
     if [[ $IS_MACOS == true ]]; then
-        ls -1FG
+        /bin/ls -1FG
     else
-        ls -1F --color=auto
+        /usr/bin/ls -1F --color=auto 2>/dev/null || /bin/ls -1F --color=auto
     fi
 
     # Run the virtualenv load/unload logic:
