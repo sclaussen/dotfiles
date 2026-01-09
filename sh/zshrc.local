@@ -120,8 +120,21 @@ alias p3='python3'
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Claude Code
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-alias cc='claude --dangerously-skip-permissions --settings /workspaces/src/.claude/settings.json'
-alias ccc='claude --dangerously-skip-permissions --continue --settings /workspaces/src/.claude/settings.json'
+alias cc='claude --dangerously-skip-permissions --settings ${WORKSPACE_ROOT}/.claude/settings.json'
+alias ccc='claude --dangerously-skip-permissions --continue --settings ${WORKSPACE_ROOT}/.claude/settings.json'
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Dev CLI (aidev repo clones)
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+alias dev1='node ~/src/aidev1/dev.js'
+alias dev2='node ~/src/aidev2/dev.js'
+alias dev3='node ~/src/aidev3/dev.js'
+alias dev4='node ~/src/aidev4/dev.js'
+alias dev5='node ~/src/aidev5/dev.js'
+alias dev="npx @gwai/dev@beta"
+alias devx="npx @gwai/dev"
+alias deva="npx @gwai/dev@alpha"
+alias devb="npx @gwai/dev@beta"
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Node Version Manager (NVM)
